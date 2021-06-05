@@ -22,6 +22,15 @@ def request_handler():
     valid_operations = {'algebraic': z3.algebraic, 'inequality': z3.inequality}
     if type in valid_operations:
         # if valid proof type executes proof checker
-        return json.dump('{"success": "true", "valid: "'+str(valid_operations[type](data['code']))+'}')
+        json_data = {}
+        validity, model = valid_operations[type](data['code'])
+        json_data['success'] = True
+        json_data['valid'] = validity
+        json_data['model'] = str(model)
+        return json.dumps(json_data)
     else:
-        return json.dump('{"success": "false", "valid: "invalid"}')
+        json_data = {}
+        json_data['success'] = False
+        json_data['valid'] = None
+        json_data['model'] = None
+        return json.dumps(json_data)
