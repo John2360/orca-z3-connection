@@ -9,7 +9,7 @@ $(document).ready(() =>
     {
         $.ajax({
             type : 'post',
-            url : 'http://127.0.0.1:5000/checker',
+            url : 'http://127.0.0.1:5000/simplify',
             data : getContent,
             success : ()  => 
             {
