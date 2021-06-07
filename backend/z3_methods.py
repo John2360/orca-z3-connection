@@ -54,17 +54,32 @@ class Z3_Worker():
         # handle expressions and proof
         return self.algebraic_solver(expression_list)
 
-    def inequality_solver(self, expression):
+    def inequality_solver(self, code):
+        # find each line of code
+        code_steps = self.code_to_list(code)
+        expression_list = []
 
-        varibles = self.info_on_expression(expression)
+        # clean each line of code to an expression
+        for expression in code_steps:
+            if self.is_definition(expression):
+                expression_list.append(expression)
 
-        for var in varibles:
-            exec(var + " = Real('"+var+"')")
-
-        f = eval(expression)
         s = Solver()
 
-        s.add(f)
+        # keep track of declared varibles to not dupe
+        declared_vars = []
+
+        # declare new varibles and add statements to solver
+        for expression in expression_list:
+            varibles = self.info_on_expression(expression)
+
+            for var in [x for x in varibles if x not in declared_vars]:
+                exec(var + " = Real('"+var+"')")
+
+            expression = expression.replace('=', '==')
+            f = eval(expression)
+            s.add(f)
+
         if s.check() == sat:
             expression_model = s.model()
         else:
@@ -89,4 +104,4 @@ if __name__ == '__main__':
     import json
     test = Z3_Worker()
     print(test.algebraic(json.loads('{"type": "algebraic", "code": "x=2*3+4-2,x=6+4-4,x=10-2,x=8"}')['code']))
-    print(test.simplify_tool('test+1>x'))
+    print(test.inequality("x=2,y=5,z=x+y,z>3"))
