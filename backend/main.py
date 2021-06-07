@@ -1,9 +1,13 @@
 from flask import Flask, request
+from flask_cors import CORS, cross_origin
 import z3_methods
 import json
 
 # flask setups
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 z3 = z3_methods.Z3_Worker()
 
 # base page
