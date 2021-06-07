@@ -45,7 +45,6 @@ def request_handler_simplify():
     try:
         data = json.loads(request.data)
         simplified = z3.simplify_tool(data['expression'])
-        print(simplified)
         json_data = {}
         json_data['success'] = True
         json_data['simplified'] = str(simplified)

@@ -8,25 +8,28 @@ $(document).ready(() =>
     $("#checker-button").on('click', () =>
     {
         $.ajax({
-            type : 'post',
+            type : 'POST',
+            contentType: "application/json",
             url : 'http://127.0.0.1:5000/checker',
-            data : getContent,
-            success : ()  => 
+            data : getContent(),
+            success : (data)  => 
             {
-                console.log('check request sent')
+                console.log(data)
             }
         });
     });
 
     $("#simplify-button").on('click', () =>
     {
+        console.log(getContent())
         $.ajax({
-            type : 'post',
+            type : 'POST',
+            contentType: "application/json",
             url : 'http://127.0.0.1:5000/simplify',
-            data : getContent,
-            success : ()  => 
+            data : getContent(),
+            success : (data)  => 
             {
-                console.log('simplify request sent')
+                console.log(data)
             }
         });
     });
