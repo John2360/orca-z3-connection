@@ -13,7 +13,7 @@ def blank():
 
 # handles proof checker
 @app.route('/checker', methods=['POST'])
-def request_handler():
+def request_handler_checker():
     # proof type
     data = json.loads(request.data)
     type = data['type']
@@ -27,10 +27,27 @@ def request_handler():
         json_data['success'] = True
         json_data['valid'] = validity
         json_data['model'] = str(model)
-        return json.dumps(json_data)
     else:
         json_data = {}
         json_data['success'] = False
         json_data['valid'] = None
         json_data['model'] = None
-        return json.dumps(json_data)
+    
+    return json.dumps(json_data)
+
+# handles proof checker
+@app.route('/simplify', methods=['POST'])
+def request_handler_simplify():
+    try:
+        data = json.loads(request.data)
+        simplified = z3.simplify_tool(data['expression'])
+        print(simplified)
+        json_data = {}
+        json_data['success'] = True
+        json_data['simplified'] = str(simplified)
+    except:
+        json_data = {}
+        json_data['success'] = False
+        json_data['simplified'] = None
+
+    return json.dumps(json_data)

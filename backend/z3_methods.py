@@ -75,8 +75,18 @@ class Z3_Worker():
     def inequality(self, code):
         return self.inequality_solver(code)
 
+    def simplify_tool(self, expression):
+        varibles = self.info_on_expression(expression)
+
+        for var in varibles:
+            exec(var + " = Real('"+var+"')")
+
+        f = eval(expression)
+        
+        return simplify(f)
+
 if __name__ == '__main__':
     import json
     test = Z3_Worker()
     # print(test.algebraic(json.loads('{"type": "algebraic", "code": "x=2*3+4-2,x=6+4-4,x=10-2,x=8"}')['code']))
-    print(test.inequality('test+1>x'))
+    # print(test.simplify_tool('test+1>x'))
