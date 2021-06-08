@@ -77,7 +77,8 @@ class Z3_Worker():
             for var in [x for x in varibles if x not in declared_vars]:
                 exec(var + " = Real('"+var+"')")
 
-            expression = expression.replace('=', '==')
+            if expression.count('=') == 1:
+                expression = expression.replace('=', '==')
 
             f = eval(expression)
             s.add(f)
