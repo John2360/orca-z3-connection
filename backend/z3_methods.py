@@ -11,6 +11,13 @@ class Z3_Worker():
 
         return varibles
 
+    def char_in_str(self, input, list):
+        for char in list:
+            if char in input:
+                return char
+
+        return False
+
     # split code line by line
     def code_to_list(self, code):
         return code.split(',')
@@ -91,17 +98,59 @@ class Z3_Worker():
         return self.inequality_solver(code)
 
     def simplify_tool(self, expression):
-        varibles = self.info_on_expression(expression)
+        expression_list = []
 
-        for var in varibles:
-            exec(var + " = Real('"+var+"')")
+        modifier = self.char_in_str(expression, ['>', '<', '='])
+        final_modifier = ''
 
-        f = eval(expression)
-        
-        return simplify(f)
+        if modifier in ['>', '<', '=']:
+            if self.char_in_str(expression, ['=']):
+                final_modifier = modifier + '='
+                expression_list = expression.split(modifier+'=')
+            else:
+                final_modifier = modifier
+                expression_list = expression.split(modifier)
+
+        # hold simplified expression
+        simplified_expressions = []
+
+        # keep track of declared varibles to not dupe
+        declared_vars = []
+
+        # declare new varibles and add statements to solver
+        for index, expression in enumerate(expression_list):
+            varibles = self.info_on_expression(expression)
+            
+            for var in [x for x in varibles if x not in declared_vars]:
+                exec(var + " = Real('"+var+"')")
+
+            f = eval(expression)
+            if type(f) == z3.z3.ArithRef:
+                simplified = simplify(f)
+            else:
+                simplified = f
+            
+            if type(simplified) == z3.z3.BoolRef:
+                if simplified or not simplified:
+                    simplified_expressions.append(expression_list[index])
+            else:
+                simplified_expressions.append(simplified)
+
+        # simplify the combined statements
+        combined_expression = eval(final_modifier.join([str(elem) for elem in simplified_expressions]))
+        if combined_expression == True:
+            return final_modifier.join([str(elem) for elem in simplified_expressions])
+
+        final_expression = simplify(combined_expression)
+
+        if str(final_expression) == 'True' or str(final_expression) == 'False':
+            if final_expression or not final_expression:
+                return str(combined_expression)
+        else:
+            return final_expression
 
 if __name__ == '__main__':
     import json
     test = Z3_Worker()
-    print(test.algebraic(json.loads('{"type": "algebraic", "code": "x=2*3+4-2,x=6+4-4,x=10-2,x=8"}')['code']))
-    print(test.inequality("x=2,y=5,z=x+y,z>3"))
+    # print(test.algebraic(json.loads('{"type": "algebraic", "code": "x=2*3+4-2,x=6+4-4,x=10-2,x=8"}')['code']))
+    # print(test.simplify_tool("7*x**2-4*x**2 == 0"))
