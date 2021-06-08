@@ -64,12 +64,6 @@ class Z3_Worker():
     def inequality_solver(self, code):
         # find each line of code
         code_steps = self.code_to_list(code)
-        expression_list = []
-
-        # clean each line of code to an expression
-        for expression in code_steps:
-            if self.is_definition(expression):
-                expression_list.append(expression)
 
         s = Solver()
 
@@ -77,13 +71,14 @@ class Z3_Worker():
         declared_vars = []
 
         # declare new varibles and add statements to solver
-        for expression in expression_list:
+        for expression in code_steps:
             varibles = self.info_on_expression(expression)
 
             for var in [x for x in varibles if x not in declared_vars]:
                 exec(var + " = Real('"+var+"')")
 
             expression = expression.replace('=', '==')
+
             f = eval(expression)
             s.add(f)
 
@@ -118,6 +113,7 @@ class Z3_Worker():
         declared_vars = []
 
         # declare new varibles and add statements to solver
+        # simplify each side and add it to a list
         for index, expression in enumerate(expression_list):
             varibles = self.info_on_expression(expression)
             
@@ -154,3 +150,4 @@ if __name__ == '__main__':
     test = Z3_Worker()
     # print(test.algebraic(json.loads('{"type": "algebraic", "code": "x=2*3+4-2,x=6+4-4,x=10-2,x=8"}')['code']))
     # print(test.simplify_tool("7*x**2-4*x**2 == 0"))
+    print(test.inequality("x>3, z=x, z>4"))
