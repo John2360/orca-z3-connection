@@ -200,20 +200,6 @@ class Z3_Worker():
 
             return simplify(eval(expression))
 
-    def is_bounding(self, code):
-        varibles = self.info_on_expression(code)
-
-        matches_found = {'>': 0, '<': 0, '=': 0}
-        for char in code:
-            for special in ['<', '>', '=']:
-                if special == char:
-                    matches_found[char] += 1
-        
-        if ((matches_found['>'] == 1 and matches_found['<'] == 0) or (matches_found['>'] == 0 and matches_found['<'] == 1) or (matches_found['='] == 2 and matches_found['<'] == 0 and matches_found['>'] == 0)) and len(self.info_on_expression(code)) == 1:
-            return True
-        
-        return False
-
     def for_all(self, code):
         # find each line of code
         code_steps = self.code_to_list(code)
@@ -257,19 +243,19 @@ class Z3_Worker():
 
         for bounding_expression in bounding_expressions:
             varibles = self.info_on_expression(bounding_expression)
-            print(bounding_expressions)
             expression = eval(bounding_expression)
             exec_expressions.append(expression)
 
-        print(exec_expressions)
-        s.add(exec_expressions)
+        for expression in exec_expressions:
+            s.add(expression)
+        res = s.check()
 
-        if s.check() == sat:
+        if res == sat:
             expression_model = s.model()
         else:
             expression_model = None
         
-        return (s.check() == sat, expression_model)
+        return (res == sat, expression_model)
 
 if __name__ == '__main__':
     import json
