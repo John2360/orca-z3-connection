@@ -264,11 +264,19 @@ class Z3_Worker():
         print(exec_expressions)
         s.add(exec_expressions)
 
+        if s.check() == sat:
+            expression_model = s.model()
+        else:
+            expression_model = None
+        
+        return (s.check() == sat, expression_model)
+
 if __name__ == '__main__':
     import json
     test = Z3_Worker()
-    print(test.algebraic(json.loads('{"type": "algebraic", "code": "x=2*3+4-2,x=6+4-4,x=10-2,x=8"}')['code']))
-    print(test.inequality("x=2,y=5,z=x+y,z>3"))
-    testExprs = ["x>1","x**2+y**2>1"]
-    print("Free:",test.separate_vars(testExprs)[0],"Bound:",test.separate_vars(testExprs)[1])
-    print("Free:",test.separate_expressions(testExprs)[0],"Bound:",test.separate_expressions(testExprs)[1])
+    # print(test.algebraic(json.loads('{"type": "algebraic", "code": "x=2*3+4-2,x=6+4-4,x=10-2,x=8"}')['code']))
+    # print(test.inequality("x=2,y=5,z=x+y,z>3"))
+    # testExprs = ["x>1","x**2+y**2>1"]
+    # print("Free:",test.separate_vars(testExprs)[0],"Bound:",test.separate_vars(testExprs)[1])
+    # print("Free:",test.separate_expressions(testExprs)[0],"Bound:",test.separate_expressions(testExprs)[1])
+    print(test.for_all('x>1,x**2+y**2>1'))
