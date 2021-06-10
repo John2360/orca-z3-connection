@@ -13,4 +13,4 @@ export FLASK_APP=main.py
 ex: export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/lib/libz3.dylib
 
 Algebraic example 1:
-{"type": "algebraic, "code": "x=2*3+4 \n x=6+4 \n x=10"}
+{"type": "algebraic, "code": "x=2*3+4,x=6+4,x=10"}

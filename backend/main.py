@@ -23,7 +23,7 @@ def request_handler_checker():
     type = data['type']
     
     # valid proof types
-    valid_operations = {'algebraic': z3.algebraic, 'inequality': z3.inequality}
+    valid_operations = {'algebraic': z3.algebraic, 'inequality': z3.inequality, 'forall': z3.for_all}
     if type in valid_operations:
         # if valid proof type executes proof checker
         json_data = {}
