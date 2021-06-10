@@ -75,6 +75,7 @@ class Z3_Worker():
             varibles = self.info_on_expression(expression)
 
             for var in [x for x in varibles if x not in declared_vars]:
+                declared_vars.append(var)
                 exec(var + " = Real('"+var+"')")
 
             if expression.count('=') == 1:
@@ -120,6 +121,7 @@ class Z3_Worker():
                 varibles = self.info_on_expression(expression)
                 
                 for var in [x for x in varibles if x not in declared_vars]:
+                    declared_vars.append(var)
                     exec(var + " = Real('"+var+"')")
 
                 f = eval(expression)
@@ -156,9 +158,71 @@ class Z3_Worker():
 
             return simplify(eval(expression))
 
+    def is_bounding(self, code):
+        varibles = self.info_on_expression(code)
+
+        matches_found = {'>': 0, '<': 0, '=': 0}
+        for char in code:
+            for special in ['<', '>', '=']:
+                if special == char:
+                    matches_found[char] += 1
+        
+        if ((matches_found['>'] == 1 and matches_found['<'] == 0) or (matches_found['>'] == 0 and matches_found['<'] == 1) or (matches_found['='] == 2 and matches_found['<'] == 0 and matches_found['>'] == 0)) and len(self.info_on_expression(code)) == 1:
+            return True
+        
+        return False
+
+    def for_all(self, code):
+        # find each line of code
+        code_steps = self.code_to_list(code)
+
+        s = Solver()
+
+        # keep track of declared varibles to not dupe
+        declared_vars = []
+        bounding_vars = []
+        expression_list = []
+
+        # declare new varibles and add statements to solver
+        for expression in code_steps:
+            varibles = self.info_on_expression(expression)
+            
+            for var in [x for x in varibles if x not in declared_vars]:
+                    declared_vars.append(var)
+                    exec(var + " = Real('"+var+"')")
+
+            if self.is_bounding(expression):
+                for var in varibles:
+                    bounding_vars.append(var)
+                
+            expression_list.append(expression)
+
+        clean_vars = []
+        exec_expression_list = []
+        for expression in expression_list:
+            varibles = self.info_on_expression(expression)
+            expression = eval(expression)
+            exec_expression_list.append(expression)
+            for_all_vars = [x for x in varibles if x not in bounding_vars]
+            for var in for_all_vars:
+                clean_vars.append(locals()[for_all_vars[0]])
+
+            # print(str(clean_vars), str(expression))
+        
+        print(exec_expression_list)
+        print(clean_vars)
+        s.add(ForAll(clean_vars, exec_expression_list))
+
+        if s.check() == sat:
+            expression_model = s.model()
+        else:
+            expression_model = None
+        
+        return (s.check() == sat, expression_model)
+                
 if __name__ == '__main__':
     import json
     test = Z3_Worker()
     # print(test.algebraic(json.loads('{"type": "algebraic", "code": "x=2*3+4-2,x=6+4-4,x=10-2,x=8"}')['code']))
     # print(test.simplify_tool("2*x**2 +4*x**2"))
-    # print(test.inequality("x>3, z=x, z>4"))
+    print(test.for_all("x>1, x**2+y**2>1"))
