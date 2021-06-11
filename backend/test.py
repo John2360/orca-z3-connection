@@ -1,5 +1,6 @@
 from sympy import symbols, Eq, solve
 import re
+import string
 
 def info_on_expression(expression):
     regex = r'\b[^\d\W]+\b'
@@ -21,7 +22,15 @@ def find_bounds_input(expression):
 
     expression_list = []
     bounds_list = []
+    var_list = []
+    possible_vars = list(string.ascii_lowercase)
+    untaken_vars = [x for x in possible_vars if x not in var_list]
     
+    for line in code_lines:
+        varibles = info_on_expression(line)
+        for var in varibles:
+            var_list.append(var)
+
     for index, expression in enumerate(code_lines):
         char = char_in_str(expression, ['>', '<', '='])
         if char == '>' or char == '<' or char == '=':
@@ -29,11 +38,23 @@ def find_bounds_input(expression):
             
             for code in code_lines[index]:
                 varibles = info_on_expression(code)
-
+     
                 if(len(varibles) > 0):
-                    expression_list.append("y="+code)
+                    expression_list.append(code)
                 else:
-                    bounds_list.append("y="+code)
+                    bounds_list.append(code)
+
+    for expression in code_lines:
+        if expression[0] == expression_list[0]:
+            bounds_list.append(expression[1])
+        elif expression[1] == expression_list[0]:
+            bounds_list.append(expression[0])
+
+    for index, item in enumerate(bounds_list):
+        bounds_list[index] = untaken_vars[0] + "=" + item
+    
+    for index, item in enumerate(expression_list):
+        expression_list[index] = untaken_vars[0] + "=" + item
 
     return (bounds_list, expression_list[0])
 
@@ -119,4 +140,5 @@ if __name__ == '__main__':
     # print(find_bounds(bounds, expression))
     # print("ints:",get_intervals(['x**2>4','x**2<16'], [[(-2, 4), (2, 4)], [(-4, 16), (4, 16)]]))
 
-    print(find_bounds_input("x**2>x"))
+    bounds, expression = find_bounds_input("-x**2 + 4 > x ** 2 - 4")
+    print(find_bounds(bounds, expression))
