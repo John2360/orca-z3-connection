@@ -86,7 +86,7 @@ def get_intervals(ineqs, intersections):
         avg = (domainVals[i] + domainVals[i+1])/2
         isInterval = True
         for ineq in ineqs:
-            if not plug_in(ineq, avg):
+            if not plug_in(ineq, {"x":avg}):
                 isInterval = False
                 break
         
@@ -101,12 +101,12 @@ def get_intervals(ineqs, intersections):
             intervals.append("["+str(start) + ","+str(end)+"]")
 
     return intervals
-            
-
-def plug_in(ineq, val):
+    
+def plug_in(ineq, valDict):
     string = ineq
-    while "x" in string:
-        string = string.replace('x', "("+str(val)+")")
+    for key in valDict:
+        while key in string:
+            string = string.replace(key, "("+str(valDict[key])+")")   
 
     answer = eval(string)
     return answer
