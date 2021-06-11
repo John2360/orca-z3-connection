@@ -91,7 +91,14 @@ def get_intervals(ineqs, intersections):
                 break
         
         if isInterval:
-            intervals.append("["+str(domainVals[i]) + ","+str(domainVals[i+1])+"]")
+            start = domainVals[i]
+            end = domainVals[i+1]
+            if i + 1 == len(domainVals) - 1:
+                end = "INF"
+            if i == 0:
+                start = "-INF"
+
+            intervals.append("["+str(start) + ","+str(end)+"]")
 
     return intervals
             
