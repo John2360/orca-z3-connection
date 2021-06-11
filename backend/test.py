@@ -9,8 +9,39 @@ def info_on_expression(expression):
 
     return varibles
 
+# split code line by line
+def code_to_list(code):
+    return code.split(',')
+
 def break_down_expression(expression):
     return (expression.split('=')[0].strip(),expression.split('=')[1].strip())
+
+def find_bounds_input(expression):
+    code_lines = code_to_list(expression)
+
+    expression_list = []
+    bounds_list = []
+    
+    for index, expression in enumerate(code_lines):
+        char = char_in_str(expression, ['>', '<', '='])
+        if char == '>' or char == '<' or char == '=':
+            code_lines[index] = expression.split(char)
+            
+            for code in code_lines[index]:
+                varibles = info_on_expression(code)
+
+                if(len(varibles) > 0):
+                    expression_list.append("y="+code)
+                else:
+                    bounds_list.append("y="+code)
+
+    return (bounds_list, expression_list[0])
+
+def char_in_str(input, list):
+    for char in list:
+        if char in input:
+            return char
+    return False
 
 # input bound dict and expression dict
 # bounds = {"y": 4, "y":16} # expression = {"y": "x ** 2"}
@@ -39,4 +70,6 @@ def find_bounds(bounds, expression):
     return solution_list
 
 if __name__ == '__main__':
-    find_bounds(['y=4','y=16'], 'y=x**2')
+    print(find_bounds_input('x**2>4,x**2<16'))
+    bounds, expression = find_bounds_input('x**2>4,x**2<16')
+    print(find_bounds(bounds, expression))

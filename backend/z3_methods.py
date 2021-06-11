@@ -23,6 +23,12 @@ class Z3_Worker():
     # is this a definition
     def is_definition(self, code):
         return '=' in code
+
+    def char_in_str(self, input, list):
+        for char in list:
+            if char in input:
+                return char
+        return False
     
     #returns true if string contains a letter (caps or no caps)
     def has_letters(self, string):
