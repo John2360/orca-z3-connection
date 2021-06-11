@@ -69,7 +69,45 @@ def find_bounds(bounds, expression):
 
     return solution_list
 
+def get_intervals(ineqs, intersections):
+    points = []
+    for list in intersections:
+        for point in list:
+            points.append(point)
+
+    domainVals = [point[0] for point in points]
+    domainVals.sort()
+    domainVals.insert(0, domainVals[0] - 1)
+    domainVals.append(domainVals[-1] + 1)
+
+    intervals = []
+
+    for i in range(0, len(domainVals) - 1):
+        avg = (domainVals[i] + domainVals[i+1])/2
+        isInterval = True
+        for ineq in ineqs:
+            if not plug_in(ineq, avg):
+                isInterval = False
+                break
+        
+        if isInterval:
+            intervals.append("["+str(domainVals[i]) + ","+str(domainVals[i+1])+"]")
+
+    return intervals
+            
+
+def plug_in(ineq, val):
+    string = ineq
+    while "x" in string:
+        string = string.replace('x', "("+str(val)+")")
+
+    answer = eval(string)
+    return answer
+
+
+
 if __name__ == '__main__':
     print(find_bounds_input('x**2>4,x**2<16'))
     bounds, expression = find_bounds_input('x**2>4,x**2<16')
     print(find_bounds(bounds, expression))
+    print("ints:",get_intervals(['x**2>4','x**2<16'], [[(-2, 4), (2, 4)], [(-4, 16), (4, 16)]]))
