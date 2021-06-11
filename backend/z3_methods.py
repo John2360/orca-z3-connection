@@ -153,6 +153,9 @@ class Z3_Worker():
 
     def simplify_tool(self, expression):
         varibles = self.info_on_expression(expression)
+        
+        # keep track of declared varibles to not dupe
+        declared_vars = []
 
         for var in varibles:
             exec(var + " = Real('"+var+"')")
