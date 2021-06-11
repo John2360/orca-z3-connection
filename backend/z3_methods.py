@@ -152,19 +152,26 @@ class Z3_Worker():
         return self.inequality_solver(code)
 
     def simplify_tool(self, expression):
-        varibles = self.info_on_expression(expression)
-        
-        # keep track of declared varibles to not dupe
-        declared_vars = []
-
-        for var in varibles:
-            exec(var + " = Real('"+var+"')")
-
+        expression_list = []
+        modifier = self.char_in_str(expression, ['>', '<', '='])
+        final_modifier = ''
+        if modifier != False:
+            if modifier in ['>', '<', '=']:
+                if self.char_in_str(expression, ['=']):
+                    final_modifier = modifier + '='
+                    expression_list = expression.split(modifier+'=')
+                else:
+                    final_modifier = modifier
+                    expression_list = expression.split(modifier)
+            # hold simplified expression
+            simplified_expressions = []
+            # keep track of declared varibles to not dupe
+            declared_vars = []
             # declare new varibles and add statements to solver
             # simplify each side and add it to a list
             for index, expression in enumerate(expression_list):
                 varibles = self.info_on_expression(expression)
-                
+
                 for var in [x for x in varibles if x not in declared_vars]:
                     declared_vars.append(var)
                     exec(var + " = Real('"+var+"')")
@@ -180,14 +187,11 @@ class Z3_Worker():
                         simplified_expressions.append(expression_list[index])
                 else:
                     simplified_expressions.append(simplified)
-
             # simplify the combined statements
             combined_expression = eval(final_modifier.join([str(elem) for elem in simplified_expressions]))
             if combined_expression == True:
                 return final_modifier.join([str(elem) for elem in simplified_expressions])
-
             final_expression = simplify(combined_expression)
-
             if str(final_expression) == 'True' or str(final_expression) == 'False':
                 if final_expression or not final_expression:
                     return str(combined_expression)
@@ -196,7 +200,6 @@ class Z3_Worker():
         else:
             # keep track of declared varibles to not dupe
             declared_vars = []
-
             varibles = self.info_on_expression(expression)
             for var in [x for x in varibles if x not in declared_vars]:
                     exec(var + " = Real('"+var+"')")
@@ -256,6 +259,7 @@ class Z3_Worker():
         if res == sat:
             expression_model = s.model()
         else:
+            print(exec_expressions)
             expression_model = None
         
         return (res == sat, expression_model)
@@ -268,4 +272,4 @@ if __name__ == '__main__':
     # testExprs = ["x>1","x**2+y**2>1"]
     # print("Free:",test.separate_vars(testExprs)[0],"Bound:",test.separate_vars(testExprs)[1])
     # print("Free:",test.separate_expressions(testExprs)[0],"Bound:",test.separate_expressions(testExprs)[1])
-    print(test.for_all('x>1,x**2+y**2>1'))
+    print(test.for_all('x**2>4,x**2<16'))

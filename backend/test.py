@@ -1,7 +1,6 @@
 from sympy import symbols, Eq, solve
 import re
 
-
 def info_on_expression(expression):
     regex = r'\b[^\d\W]+\b'
     varibles = re.findall(regex, expression)
