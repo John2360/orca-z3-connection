@@ -37,7 +37,7 @@ def find_bounds(bounds, expression):
         solution = solve((master_eq, bound_eq), [locals()["x"] for x in declared_vars])
         solution_list.append(solution)
 
-    print(solution_list)
+    return solution_list
 
 if __name__ == '__main__':
     find_bounds(['y=4','y=16'], 'y=x**2')
