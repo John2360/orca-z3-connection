@@ -107,7 +107,9 @@ def plug_in(ineq, val):
 
 
 if __name__ == '__main__':
-    print(find_bounds_input('x**2>4,x**2<16'))
-    bounds, expression = find_bounds_input('x**2>4,x**2<16')
-    print(find_bounds(bounds, expression))
-    print("ints:",get_intervals(['x**2>4','x**2<16'], [[(-2, 4), (2, 4)], [(-4, 16), (4, 16)]]))
+    # print(find_bounds_input('x**2>4,x**2<16'))
+    # bounds, expression = find_bounds_input('x**2>4,x**2<16')
+    # print(find_bounds(bounds, expression))
+    # print("ints:",get_intervals(['x**2>4','x**2<16'], [[(-2, 4), (2, 4)], [(-4, 16), (4, 16)]]))
+
+    print(find_bounds_input("x**2>x"))
