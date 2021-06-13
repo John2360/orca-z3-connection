@@ -1,6 +1,13 @@
-x**2 > 4, x ** 2 < 16, (-4,-2), (2,4)
+"""
+>>> import test as test
 
-x ** 2 > x (-INF,0), (1,INF)
+>>> bounds, expression = test.find_bounds_input("x**2 > 4, x ** 2 < 16")
+>>> print(test.get_intervals(["x**2 > 4", "x ** 2 < 16"], test.find_bounds(bounds, expression)))
+['[-4,-2]', '[2,4]']
+
+>>> bounds, expression = test.find_bounds_input("x ** 2 > x")
+>>> print(test.get_intervals(["x ** 2 > x"], test.find_bounds(bounds, expression)))
+['[-INF,0]', '[1,INF]']
 
 -x**2 + 4 > x ** 2 - 4 (-2,2)
 
@@ -13,3 +20,5 @@ x ** 2 >= 0 sat
 x ** 2 <= 0 [0,0]
 
 2 * x > x ** 2 + 4 * x - 1 (-2.414,0.414)
+
+"""

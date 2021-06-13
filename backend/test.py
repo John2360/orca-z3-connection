@@ -88,6 +88,9 @@ def find_bounds(bounds, expression):
         solution = solve((master_eq, bound_eq), [locals()["x"] for x in declared_vars])
         solution_list.append(solution)
 
+    # just returns xs
+    # solution_list = [x[0] for x in solution_list]
+
     return solution_list
 
 def get_intervals(ineqs, intersections):
@@ -132,13 +135,11 @@ def plug_in(ineq, valDict):
     answer = eval(string)
     return answer
 
-
-
 if __name__ == '__main__':
     # print(find_bounds_input('x**2>4,x**2<16'))
     # bounds, expression = find_bounds_input('x**2>4,x**2<16')
     # print(find_bounds(bounds, expression))
     # print("ints:",get_intervals(['x**2>4','x**2<16'], [[(-2, 4), (2, 4)], [(-4, 16), (4, 16)]]))
 
-    bounds, expression = find_bounds_input("-x**2 + 4 > x ** 2 - 4")
+    bounds, expression = find_bounds_input("2 * x > x ** 2 + 4 * x - 1")
     print(find_bounds(bounds, expression))
