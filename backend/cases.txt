@@ -15,27 +15,27 @@ exp
 ## REGION BOUND TESTS ##
 >>> bounds, expression = test.find_bounds_input("x**2 > 4, x ** 2 < 16")
 >>> print(test.get_intervals(["x**2 > 4", "x ** 2 < 16"], test.find_bounds(bounds, expression)))
-['[-4,-2]', '[2,4]']
+['(-4,-2)', '(2,4)']
 
 >>> bounds, expression = test.find_bounds_input("x ** 2 > x")
 >>> print(test.get_intervals(["x ** 2 > x"], test.find_bounds(bounds, expression)))
-['[-INF,0]', '[1,INF]']
+['(-INF,0)', '(1,INF)']
 
 >>> bounds, expression = test.find_bounds_input("-x**2 + 4 > x ** 2 - 4")
 >>> print(test.get_intervals(["-x**2 + 4 > x ** 2 - 4"], test.find_bounds(bounds, expression)))
-['[-2,2]']
+['(-2,2)']
 
 >>> bounds, expression = test.find_bounds_input("x > 10, x < 5")
 >>> print(test.get_intervals(["x > 10", "x < 5"], test.find_bounds(bounds, expression)))
 unsat
 
->>> bounds, expression = test.find_bounds_input("x ** 2 > 0")
->>> print(test.get_intervals(["x ** 2 > 0"], test.find_bounds(bounds, expression)))
-['[-INF,0]', '[0,INF]']
+>>> bounds, expression = test.find_bounds_input("x ** 2 >= 0")
+>>> print(test.get_intervals(["x ** 2 >= 0"], test.find_bounds(bounds, expression)))
+['(-INF,0]', '[0,0]', '[0,INF)']
 
 >>> bounds, expression = test.find_bounds_input("x ** 2 >= 0")
 >>> print(test.get_intervals(["x ** 2 >= 0"], test.find_bounds(bounds, expression)))
-sat
+['(-INF,0]', '[0,0]', '[0,INF)']
 
 >>> bounds, expression = test.find_bounds_input("x ** 2 <= 0")
 >>> print(test.get_intervals(["x ** 2 <= 0"], test.find_bounds(bounds, expression)))
