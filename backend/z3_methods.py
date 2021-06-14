@@ -1,4 +1,5 @@
 from z3 import *
+from math import sqrt
 import data_structures as DS
 import re
 
