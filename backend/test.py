@@ -114,12 +114,29 @@ def get_intervals(ineqs, intersections):
         if isInterval:
             start = domainVals[i]
             end = domainVals[i+1]
+            igrouper = "["
+            fgrouper = "]"
             if i + 1 == len(domainVals) - 1:
                 end = "INF"
+                fgrouper = ")"
             if i == 0:
                 start = "-INF"
+                igrouper = "("
+            
 
-            intervals.append("["+str(start) + ","+str(end)+"]")
+
+            for ineq in ineqs:
+                if not plug_in(ineq, {"x":domainVals[i]}):
+                    igrouper = "("
+                    break
+            
+            for ineq in ineqs:
+                if not plug_in(ineq, {"x":domainVals[i+1]}):
+                    fgrouper = ")"
+                    break 
+
+
+            intervals.append(igrouper+str(start) + ","+str(end)+fgrouper)
 
     return intervals
     
@@ -132,13 +149,34 @@ def plug_in(ineq, valDict):
     answer = eval(string)
     return answer
 
+def produce_counterexample(expressions):
+    s = Solver()
+        
+    for expression in expressions:
+        varibles = info_on_expression(expression)
+
+        for var in varibles:
+            exec(var + " = Real('"+var+"')")
+
+        expression = expression.replace('=', '==')
+        f = eval(expression)
+        s.add(Not(f))
+    
+    s.check()
+    return s.model()
+
+        
+    
+    
+
+
 
 
 if __name__ == '__main__':
     # print(find_bounds_input('x**2>4,x**2<16'))
     # bounds, expression = find_bounds_input('x**2>4,x**2<16')
     # print(find_bounds(bounds, expression))
-    # print("ints:",get_intervals(['x**2>4','x**2<16'], [[(-2, 4), (2, 4)], [(-4, 16), (4, 16)]]))
+    print("ints:",get_intervals(['x**2>4','x**2<16'], [[(-2, 4), (2, 4)], [(-4, 16), (4, 16)]]))
 
-    bounds, expression = find_bounds_input("-x**2 + 4 > x ** 2 - 4")
-    print(find_bounds(bounds, expression))
+    # bounds, expression = find_bounds_input("-x**2 + 4 > x ** 2 - 4")
+    # print(find_bounds(bounds, expression))
