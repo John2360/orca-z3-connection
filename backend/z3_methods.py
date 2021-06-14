@@ -265,7 +265,7 @@ class Z3_Worker():
             expression = eval(expression)
             for_all_vars = [x for x in varibles if x not in bounding_vars]
             for var in for_all_vars:
-                clean_vars.append(locals()[for_all_vars[0]])
+                clean_vars.append(locals()[var])
             
             exec_expressions.append(ForAll(clean_vars, expression))
 
@@ -510,7 +510,7 @@ if __name__ == '__main__':
     # bounds, expression = test.find_bounds_input("x > 10, x < 5")
     # print(test.get_intervals(["x > 10", "x < 5"], test.find_bounds(bounds, expression)))
 
-    print(test.for_all("x**2 + y **2 >=0"))
-    print(test.for_all("x**2>0"))
-    print(test.for_all("x + y > 0"))
+    # print(test.for_all("x**2 + y **2 >=0"))
+    # print(test.for_all("x**2>0"))
+    # print(test.for_all("x + y > 0"))
     print(test.for_all("x**2 + y**2 > 0"))
