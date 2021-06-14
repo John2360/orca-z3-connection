@@ -276,6 +276,22 @@ class Z3_Worker():
             expression_model = None
         
         return (res == sat, expression_model)
+    
+    def produce_counterexample(expressions):
+        s = Solver()
+            
+        for expression in expressions:
+            varibles = self.info_on_expression(expression)
+
+            for var in varibles:
+                exec(var + " = Real('"+var+"')")
+
+            expression = expression.replace('=', '==')
+            f = eval(expression)
+            s.add(Not(f))
+        
+        s.check()
+        return s.model()
 
     def break_down_expression(self, expression):
         return (expression.split('=')[0].strip(),expression.split('=')[1].strip())
