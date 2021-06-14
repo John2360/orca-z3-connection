@@ -380,6 +380,8 @@ class Z3_Worker():
         return solution_list
 
     def get_intervals(self, ineqs, intersections):
+        if type(intersections[0]) is dict:
+            return unsat
         points = []
         for list in intersections:
             for point in list:

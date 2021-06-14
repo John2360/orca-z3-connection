@@ -43,6 +43,6 @@ unsat
 
 >>> bounds, expression = test.find_bounds_input("2 * x > x ** 2 + 4 * x - 1")
 >>> print(test.get_intervals(["2 * x > x ** 2 + 4 * x - 1"], test.find_bounds(bounds, expression)))
-['(-2.414,0.414)']
+['(-sqrt(2) - 1,-1 + sqrt(2))']
 
 """
