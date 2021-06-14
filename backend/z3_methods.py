@@ -2,6 +2,9 @@ from z3 import *
 import data_structures as DS
 import re
 
+from sympy import symbols, Eq, solve
+import string
+
 class Z3_Worker():
     def info_on_expression(self, expression):
         regex = r'\b[^\d\W]+\b'
@@ -101,7 +104,9 @@ class Z3_Worker():
             for var in varibles:
                 exec(var + " = Real('"+var+"')")
 
-            expression = expression.replace('=', '==')
+            if expression.count('=') == 1:
+                expression = expression.replace('=', '==')
+
             f = eval(expression)
             s.add(f)
 
@@ -143,7 +148,9 @@ class Z3_Worker():
             for var in [x for x in varibles if x not in declared_vars]:
                 exec(var + " = Real('"+var+"')")
 
-            expression = expression.replace('=', '==')
+            if expression.count('=') == 1:
+                expression = expression.replace('=', '==')
+
             f = eval(expression)
             s.add(f)
 
@@ -269,6 +276,137 @@ class Z3_Worker():
             expression_model = None
         
         return (res == sat, expression_model)
+    
+    def produce_counterexample(expressions):
+        s = Solver()
+            
+        for expression in expressions:
+            varibles = self.info_on_expression(expression)
+
+            for var in varibles:
+                exec(var + " = Real('"+var+"')")
+
+            expression = expression.replace('=', '==')
+            f = eval(expression)
+            s.add(Not(f))
+        
+        s.check()
+        return s.model()
+
+    def break_down_expression(self, expression):
+        return (expression.split('=')[0].strip(),expression.split('=')[1].strip())
+
+    def find_bounds_input(self, expression):
+        code_lines = self.code_to_list(expression)
+
+        expression_list = []
+        bounds_list = []
+        var_list = []
+        possible_vars = list(string.ascii_lowercase)
+        untaken_vars = [x for x in possible_vars if x not in var_list]
+        
+        for line in code_lines:
+            varibles = self.info_on_expression(line)
+            for var in varibles:
+                var_list.append(var)
+
+        for index, expression in enumerate(code_lines):
+            char = self.char_in_str(expression, ['>', '<', '='])
+            if char == '>' or char == '<' or char == '=':
+                code_lines[index] = expression.split(char)
+                
+                for code in code_lines[index]:
+                    varibles = self.info_on_expression(code)
+        
+                    if(len(varibles) > 0):
+                        expression_list.append(code)
+                    else:
+                        bounds_list.append(code)
+
+        for expression in code_lines:
+            if expression[0] == expression_list[0]:
+                bounds_list.append(expression[1])
+            elif expression[1] == expression_list[0]:
+                bounds_list.append(expression[0])
+
+        for index, item in enumerate(bounds_list):
+            bounds_list[index] = untaken_vars[0] + "=" + item
+        
+        for index, item in enumerate(expression_list):
+            expression_list[index] = untaken_vars[0] + "=" + item
+
+        return (bounds_list, expression_list[0])
+
+    # input bound dict and expression dict
+    # bounds = {"y": 4, "y":16} # expression = {"y": "x ** 2"}
+    def find_bounds(self, bounds, expression):
+        declared_vars = []
+        solution_list = []
+
+        # declare varibles
+        varibles = self.info_on_expression(expression)
+        
+        for var in varibles:
+            for var in [x for x in varibles if x not in declared_vars]:
+                declared_vars.append(var)
+                exec(var + " = symbols('"+var+"')")
+
+        # expression
+        broke_down = self.break_down_expression(expression)
+        master_eq = Eq(eval(broke_down[1]), locals()[broke_down[0]])
+
+        for bound in bounds:
+            broke_down = self.break_down_expression(bound)
+            bound_eq = Eq(eval(broke_down[1]), locals()[broke_down[0]])
+            solution = solve((master_eq, bound_eq), [locals()["x"] for x in declared_vars])
+            solution_list.append(solution)
+
+        # just returns xs
+        # solution_list = [x[0] for x in solution_list]
+
+        return solution_list
+
+    def get_intervals(self, ineqs, intersections):
+        points = []
+        for list in intersections:
+            for point in list:
+                points.append(point)
+
+        domainVals = [point[0] for point in points]
+        domainVals.sort()
+        domainVals.insert(0, domainVals[0] - 1)
+        domainVals.append(domainVals[-1] + 1)
+
+        intervals = []
+
+        for i in range(0, len(domainVals) - 1):
+            avg = (domainVals[i] + domainVals[i+1])/2
+            isInterval = True
+            for ineq in ineqs:
+                if not self.plug_in(ineq, {"x":avg}):
+                    isInterval = False
+                    break
+            
+            if isInterval:
+                start = domainVals[i]
+                end = domainVals[i+1]
+                if i + 1 == len(domainVals) - 1:
+                    end = "INF"
+                if i == 0:
+                    start = "-INF"
+
+                intervals.append("["+str(start) + ","+str(end)+"]")
+
+        return intervals
+        
+    def plug_in(self, ineq, valDict):
+        string = ineq
+        for key in valDict:
+            while key in string:
+                string = string.replace(key, "("+str(valDict[key])+")")   
+
+        answer = eval(string)
+        return answer
 
 if __name__ == '__main__':
     import json
