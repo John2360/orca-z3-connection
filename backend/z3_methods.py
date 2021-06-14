@@ -277,15 +277,19 @@ class Z3_Worker():
         for expression in exec_expressions:
             s.add(expression)
         res = s.check()
-
         if res == sat:
             expression_model = s.model()
         else:
-            expression_model = None
+            bounds, expression = self.find_bounds_input(code)
+            ints = self.find_bounds(bounds, expression)
+            if len(varibles) > 1:
+                return self.produce_counterexample(code_steps)
+            
+            return self.get_intervals(expression_list, ints)
         
         return (res == sat, expression_model)
     
-    def produce_counterexample(expressions):
+    def produce_counterexample(self, expressions):
         s = Solver()
             
         for expression in expressions:
@@ -503,5 +507,10 @@ if __name__ == '__main__':
     # bounds, expression = test.find_bounds_input("2 * x > x ** 2 + 4 * x - 1")
     # print(test.get_intervals(["2 * x > x ** 2 + 4 * x - 1"], test.find_bounds(bounds, expression)))
 
-    bounds, expression = test.find_bounds_input("x > 10, x < 5")
-    print(test.get_intervals(["x > 10, x < 5"], test.find_bounds(bounds, expression)))
+    # bounds, expression = test.find_bounds_input("x > 10, x < 5")
+    # print(test.get_intervals(["x > 10", "x < 5"], test.find_bounds(bounds, expression)))
+
+    print(test.for_all("x**2 + y **2 >=0"))
+    print(test.for_all("x**2>0"))
+    print(test.for_all("x + y > 0"))
+    print(test.for_all("x**2 + y**2 > 0"))
