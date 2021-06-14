@@ -436,14 +436,16 @@ class Z3_Worker():
             index = interval.index(',')
             temp = []
             temp.append(interval[0:1])
-            if interval[1:index] != "-INF":
+            try:
                 temp.append(self.test_is_int(float(interval[1:index])))
-            else:
-                temp.append(interval[1:index])
-            if interval[index + 1: len(interval) - 1] != "INF":
+            except:
+                temp.append(self.test_is_int(interval[1:index]))
+            
+            try:
                 temp.append(self.test_is_int(float(interval[index + 1: len(interval) - 1])))
-            else:
+            except:
                 temp.append(interval[index + 1: len(interval) - 1])
+
             temp.append(interval[len(interval) - 1:])
             list.append(temp)
 
@@ -487,9 +489,15 @@ if __name__ == '__main__':
     # print("Free:",test.separate_vars(testExprs)[0],"Bound:",test.separate_vars(testExprs)[1])
     # print("Free:",test.separate_expressions(testExprs)[0],"Bound:",test.separate_expressions(testExprs)[1])
     # print(test.for_all('x**2>4,x**2<16'))
+<<<<<<< HEAD
     # 
     # bounds, expression = test.find_bounds_input("2 * x > x ** 2 + 4 * x - 1")
     # print(test.get_intervals(["2 * x > x ** 2 + 4 * x - 1"], test.find_bounds(bounds, expression)))
 
     bounds, expression = test.find_bounds_input("x ** 2 >= 0")
     print(test.get_intervals(["x ** 2 >= 0"], test.find_bounds(bounds, expression)))
+=======
+    bounds, expression = test.find_bounds_input("x ** 2 <= 0")
+    print(test.get_intervals(["x ** 2 <= 0"], test.find_bounds(bounds, expression)))
+    print(test.simplify_intervals(['(-INF,3]', '[10.1,12']))
+>>>>>>> a757ef30eee7fe1885d611d1dca321b4d3115f4c
