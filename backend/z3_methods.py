@@ -367,7 +367,7 @@ class Z3_Worker():
 
         # just returns xs
         # solution_list = [x[0] for x in solution_list]
-        print(solution_list)
+        # print(solution_list)
 
         return solution_list
 
@@ -487,5 +487,9 @@ if __name__ == '__main__':
     # print("Free:",test.separate_vars(testExprs)[0],"Bound:",test.separate_vars(testExprs)[1])
     # print("Free:",test.separate_expressions(testExprs)[0],"Bound:",test.separate_expressions(testExprs)[1])
     # print(test.for_all('x**2>4,x**2<16'))
-    bounds, expression = test.find_bounds_input("2 * x > x ** 2 + 4 * x - 1")
-    print(test.get_intervals(["2 * x > x ** 2 + 4 * x - 1"], test.find_bounds(bounds, expression)))
+    # 
+    # bounds, expression = test.find_bounds_input("2 * x > x ** 2 + 4 * x - 1")
+    # print(test.get_intervals(["2 * x > x ** 2 + 4 * x - 1"], test.find_bounds(bounds, expression)))
+
+    bounds, expression = test.find_bounds_input("x ** 2 >= 0")
+    print(test.get_intervals(["x ** 2 >= 0"], test.find_bounds(bounds, expression)))
