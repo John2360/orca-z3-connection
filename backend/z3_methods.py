@@ -63,6 +63,13 @@ class Z3_Worker():
         else:
             return False
     
+    def format_disjunction(self, expression):
+        list = expression.split("or")
+        string = "Or("
+        for item in list:
+            string += item + ","
+        return string[0:len(string) - 1] + ")" 
+    
     #returns a tuple of ([free vars], [bound vars])
     def separate_vars(self, expressions):
         vars = set()
