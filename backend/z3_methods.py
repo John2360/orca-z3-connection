@@ -361,14 +361,13 @@ class Z3_Worker():
 
         for bound in bounds:
             broke_down = self.break_down_expression(bound)
-            # if broke_down[0] != "" and broke_down[1] != "":
-            # print(broke_down)
             bound_eq = Eq(eval(broke_down[1]), locals()[broke_down[0]])
             solution = solve((master_eq, bound_eq), [locals()["x"] for x in declared_vars])
             solution_list.append(solution)
 
         # just returns xs
         # solution_list = [x[0] for x in solution_list]
+        print(solution_list)
 
         return solution_list
 
@@ -420,7 +419,7 @@ class Z3_Worker():
 
                 intervals.append(igrouper+str(start) + ","+str(end)+fgrouper)
 
-        return intervals
+        return self.simplify_intervals(intervals)
         
     def plug_in(self, ineq, valDict):
         string = ineq
@@ -430,6 +429,45 @@ class Z3_Worker():
 
         answer = eval(string)
         return answer
+    
+    def simplify_intervals(self, intervals):
+        list = []
+        for interval in intervals:
+            index = interval.index(',')
+            temp = []
+            temp.append(interval[0:1])
+            if interval[1:index] != "-INF":
+                temp.append(float(interval[1:index]))
+            else:
+                temp.append(interval[1:index])
+            if interval[index + 1: len(interval) - 1] != "INF":
+                temp.append(float(interval[index + 1: len(interval) - 1]))
+            else:
+                temp.append(interval[index + 1: len(interval) - 1])
+            temp.append(interval[len(interval) - 1:])
+            list.append(temp)
+
+        i = 0
+        while i < len(list) - 1:
+            current = list[i]
+            next = list[i+1]
+
+            if current[-1] == ')' and next[0] == '(':
+                pass
+            else:
+                if current[-2] != next[1]:
+                    pass
+                else:
+                    list[i][-2] = list[i+1][-2]
+                    list[i][-1] = list[i+1][-1]
+                    list.pop(i+1)
+                    i -= 1
+            
+            i += 1
+        for j in range(0,len(list)):
+            list[j] = list[j][0] + str(list[j][1]) + ','+str(list[j][2]) + list[j][3]
+
+        return list
 
 if __name__ == '__main__':
     import json
