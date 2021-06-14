@@ -360,26 +360,18 @@ class Z3_Worker():
 
         for bound in bounds:
             broke_down = self.break_down_expression(bound)
-<<<<<<< HEAD
-            if broke_down[0] != "" and broke_down[1] != "":
-                #print(broke_down)
-                bound_eq = Eq(eval(broke_down[1]), locals()[broke_down[0]])
-                solution = solve((master_eq, bound_eq), [locals()["x"] for x in declared_vars])
-                solution_list.append(solution)
-=======
             # if broke_down[0] != "" and broke_down[1] != "":
             # print(broke_down)
             bound_eq = Eq(eval(broke_down[1]), locals()[broke_down[0]])
             solution = solve((master_eq, bound_eq), [locals()["x"] for x in declared_vars])
             solution_list.append(solution)
->>>>>>> 0593f085838fc18ee8245de4f14ca511082af043
 
         # just returns xs
         # solution_list = [x[0] for x in solution_list]
 
         return solution_list
 
-    def get_intervals(ineqs, intersections):
+    def get_intervals(self, ineqs, intersections):
         points = []
         for list in intersections:
             for point in list:
@@ -396,7 +388,7 @@ class Z3_Worker():
             avg = (domainVals[i] + domainVals[i+1])/2
             isInterval = True
             for ineq in ineqs:
-                if not plug_in(ineq, {"x":avg}):
+                if not self.plug_in(ineq, {"x":avg}):
                     isInterval = False
                     break
             
@@ -415,12 +407,12 @@ class Z3_Worker():
 
 
                 for ineq in ineqs:
-                    if not plug_in(ineq, {"x":domainVals[i]}):
+                    if not self.plug_in(ineq, {"x":domainVals[i]}):
                         igrouper = "("
                         break
                 
                 for ineq in ineqs:
-                    if not plug_in(ineq, {"x":domainVals[i+1]}):
+                    if not self.plug_in(ineq, {"x":domainVals[i+1]}):
                         fgrouper = ")"
                         break 
 
@@ -448,4 +440,4 @@ if __name__ == '__main__':
     # print("Free:",test.separate_expressions(testExprs)[0],"Bound:",test.separate_expressions(testExprs)[1])
     # print(test.for_all('x**2>4,x**2<16'))
     bounds, expression = test.find_bounds_input("x ** 2 <= 0")
-    print(test.get_intervals(["x ** 2 >= 0"], test.find_bounds(bounds, expression)))
+    print(test.get_intervals(["x ** 2 <= 0"], test.find_bounds(bounds, expression)))
