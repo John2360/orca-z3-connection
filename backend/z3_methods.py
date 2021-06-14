@@ -283,7 +283,7 @@ class Z3_Worker():
             bounds, expression = self.find_bounds_input(code)
             ints = self.find_bounds(bounds, expression)
             if len(varibles) > 1:
-                return self.produce_counterexample(code_steps)
+                return "Counterexample: " + str(self.produce_counterexample(code_steps))
             
             return self.get_intervals(expression_list, ints)
         
