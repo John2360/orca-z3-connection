@@ -272,7 +272,7 @@ class Z3_Worker():
         if res == sat:
             expression_model = s.model()
         else:
-            print(exec_expressions)
+            #print(exec_expressions)
             expression_model = None
         
         return (res == sat, expression_model)
@@ -358,7 +358,7 @@ class Z3_Worker():
         for bound in bounds:
             broke_down = self.break_down_expression(bound)
             if broke_down[0] != "" and broke_down[1] != "":
-                print(broke_down)
+                #print(broke_down)
                 bound_eq = Eq(eval(broke_down[1]), locals()[broke_down[0]])
                 solution = solve((master_eq, bound_eq), [locals()["x"] for x in declared_vars])
                 solution_list.append(solution)
@@ -368,7 +368,7 @@ class Z3_Worker():
 
         return solution_list
 
-    def get_intervals(self, ineqs, intersections):
+    def get_intervals(ineqs, intersections):
         points = []
         for list in intersections:
             for point in list:
@@ -385,19 +385,36 @@ class Z3_Worker():
             avg = (domainVals[i] + domainVals[i+1])/2
             isInterval = True
             for ineq in ineqs:
-                if not self.plug_in(ineq, {"x":avg}):
+                if not plug_in(ineq, {"x":avg}):
                     isInterval = False
                     break
             
             if isInterval:
                 start = domainVals[i]
                 end = domainVals[i+1]
+                igrouper = "["
+                fgrouper = "]"
                 if i + 1 == len(domainVals) - 1:
                     end = "INF"
+                    fgrouper = ")"
                 if i == 0:
                     start = "-INF"
+                    igrouper = "("
+                
 
-                intervals.append("["+str(start) + ","+str(end)+"]")
+
+                for ineq in ineqs:
+                    if not plug_in(ineq, {"x":domainVals[i]}):
+                        igrouper = "("
+                        break
+                
+                for ineq in ineqs:
+                    if not plug_in(ineq, {"x":domainVals[i+1]}):
+                        fgrouper = ")"
+                        break 
+
+
+                intervals.append(igrouper+str(start) + ","+str(end)+fgrouper)
 
         return intervals
         
@@ -419,5 +436,5 @@ if __name__ == '__main__':
     # print("Free:",test.separate_vars(testExprs)[0],"Bound:",test.separate_vars(testExprs)[1])
     # print("Free:",test.separate_expressions(testExprs)[0],"Bound:",test.separate_expressions(testExprs)[1])
     # print(test.for_all('x**2>4,x**2<16'))
-    bounds, expression = test.find_bounds_input("x ** 2 >= 0")
+    bounds, expression = test.find_bounds_input("x ** 2 <= 0")
     print(test.get_intervals(["x ** 2 >= 0"], test.find_bounds(bounds, expression)))
