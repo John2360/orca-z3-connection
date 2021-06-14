@@ -272,7 +272,6 @@ class Z3_Worker():
         if res == sat:
             expression_model = s.model()
         else:
-            #print(exec_expressions)
             expression_model = None
         
         return (res == sat, expression_model)
@@ -294,7 +293,10 @@ class Z3_Worker():
         return s.model()
 
     def break_down_expression(self, expression):
-        return (expression.split('=')[0].strip(),expression.split('=')[1].strip())
+        if '==' in expression:
+            return (expression.split('==')[0].strip(),expression.split('==')[1].strip())
+        elif '=' in expression:
+            return (expression.split('=')[0].strip(),expression.split('=')[1].strip())
 
     def find_bounds_input(self, expression):
         code_lines = self.code_to_list(expression)
@@ -340,6 +342,7 @@ class Z3_Worker():
     # input bound dict and expression dict
     # bounds = {"y": 4, "y":16} # expression = {"y": "x ** 2"}
     def find_bounds(self, bounds, expression):
+        # print(bounds, expression)
         declared_vars = []
         solution_list = []
 
@@ -357,11 +360,19 @@ class Z3_Worker():
 
         for bound in bounds:
             broke_down = self.break_down_expression(bound)
+<<<<<<< HEAD
             if broke_down[0] != "" and broke_down[1] != "":
                 #print(broke_down)
                 bound_eq = Eq(eval(broke_down[1]), locals()[broke_down[0]])
                 solution = solve((master_eq, bound_eq), [locals()["x"] for x in declared_vars])
                 solution_list.append(solution)
+=======
+            # if broke_down[0] != "" and broke_down[1] != "":
+            # print(broke_down)
+            bound_eq = Eq(eval(broke_down[1]), locals()[broke_down[0]])
+            solution = solve((master_eq, bound_eq), [locals()["x"] for x in declared_vars])
+            solution_list.append(solution)
+>>>>>>> 0593f085838fc18ee8245de4f14ca511082af043
 
         # just returns xs
         # solution_list = [x[0] for x in solution_list]
