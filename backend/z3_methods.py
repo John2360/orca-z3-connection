@@ -5,6 +5,7 @@ import re
 
 from sympy import symbols, Eq, solve
 import string
+from math import sqrt
 
 class Z3_Worker():
     def info_on_expression(self, expression):
@@ -368,14 +369,13 @@ class Z3_Worker():
 
         for bound in bounds:
             broke_down = self.break_down_expression(bound)
-            # if broke_down[0] != "" and broke_down[1] != "":
-            # print(broke_down)
             bound_eq = Eq(eval(broke_down[1]), locals()[broke_down[0]])
             solution = solve((master_eq, bound_eq), [locals()["x"] for x in declared_vars])
             solution_list.append(solution)
 
         # just returns xs
         # solution_list = [x[0] for x in solution_list]
+        # print(solution_list)
 
         return solution_list
 
@@ -497,7 +497,9 @@ if __name__ == '__main__':
     # print("Free:",test.separate_vars(testExprs)[0],"Bound:",test.separate_vars(testExprs)[1])
     # print("Free:",test.separate_expressions(testExprs)[0],"Bound:",test.separate_expressions(testExprs)[1])
     # print(test.for_all('x**2>4,x**2<16'))
-    bounds, expression = test.find_bounds_input("x ** 2 <= 0")
-    #print(test.get_intervals(["x ** 2 <= 0"], test.find_bounds(bounds, expression)))
-    print(test.simplify_intervals(['(-INF,sqrt(2) + 1]', '[sqrt(2) + 1,12']))
-    print(test.format_disjunction("x > 2 or x< -2"))
+    # 
+    # bounds, expression = test.find_bounds_input("2 * x > x ** 2 + 4 * x - 1")
+    # print(test.get_intervals(["2 * x > x ** 2 + 4 * x - 1"], test.find_bounds(bounds, expression)))
+
+    bounds, expression = test.find_bounds_input("x > 10, x < 5")
+    print(test.get_intervals(["x > 10, x < 5"], test.find_bounds(bounds, expression)))
