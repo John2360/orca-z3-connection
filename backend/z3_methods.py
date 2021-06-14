@@ -437,11 +437,11 @@ class Z3_Worker():
             temp = []
             temp.append(interval[0:1])
             if interval[1:index] != "-INF":
-                temp.append(float(interval[1:index]))
+                temp.append(self.test_is_int(float(interval[1:index])))
             else:
                 temp.append(interval[1:index])
             if interval[index + 1: len(interval) - 1] != "INF":
-                temp.append(float(interval[index + 1: len(interval) - 1]))
+                temp.append(self.test_is_int(float(interval[index + 1: len(interval) - 1])))
             else:
                 temp.append(interval[index + 1: len(interval) - 1])
             temp.append(interval[len(interval) - 1:])
@@ -468,6 +468,15 @@ class Z3_Worker():
             list[j] = list[j][0] + str(list[j][1]) + ','+str(list[j][2]) + list[j][3]
 
         return list
+    
+    def test_is_int(self, val):
+        if type(val) is str:
+            return val
+
+        if val == int(val):
+            return int(val)
+        else:
+            return val
 
 if __name__ == '__main__':
     import json
