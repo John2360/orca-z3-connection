@@ -341,9 +341,11 @@ class Z3_Worker():
 
         for bound in bounds:
             broke_down = self.break_down_expression(bound)
-            bound_eq = Eq(eval(broke_down[1]), locals()[broke_down[0]])
-            solution = solve((master_eq, bound_eq), [locals()["x"] for x in declared_vars])
-            solution_list.append(solution)
+            if broke_down[0] != "" and broke_down[1] != "":
+                print(broke_down)
+                bound_eq = Eq(eval(broke_down[1]), locals()[broke_down[0]])
+                solution = solve((master_eq, bound_eq), [locals()["x"] for x in declared_vars])
+                solution_list.append(solution)
 
         # just returns xs
         # solution_list = [x[0] for x in solution_list]
@@ -400,4 +402,6 @@ if __name__ == '__main__':
     # testExprs = ["x>1","x**2+y**2>1"]
     # print("Free:",test.separate_vars(testExprs)[0],"Bound:",test.separate_vars(testExprs)[1])
     # print("Free:",test.separate_expressions(testExprs)[0],"Bound:",test.separate_expressions(testExprs)[1])
-    print(test.for_all('x**2>4,x**2<16'))
+    # print(test.for_all('x**2>4,x**2<16'))
+    bounds, expression = test.find_bounds_input("x ** 2 >= 0")
+    print(test.get_intervals(["x ** 2 >= 0"], test.find_bounds(bounds, expression)))

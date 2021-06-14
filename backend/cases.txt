@@ -2,6 +2,17 @@
 >>> import z3_methods
 >>> test = z3_methods.Z3_Worker()
 
+## SIMPLIFICATION TESTS ##
+>>> print(test.simplify_tool("(exp-1)+1"))
+exp
+
+>>> print(test.simplify_tool("2*x**2 + 2*x**2"))
+4*x**2
+
+>>> print(test.simplify_tool("2*x**2 + 2*x**2 == y"))
+4*x**2 == y
+
+## REGION BOUND TESTS ##
 >>> bounds, expression = test.find_bounds_input("x**2 > 4, x ** 2 < 16")
 >>> print(test.get_intervals(["x**2 > 4", "x ** 2 < 16"], test.find_bounds(bounds, expression)))
 ['[-4,-2]', '[2,4]']
@@ -20,7 +31,7 @@ unsat
 
 >>> bounds, expression = test.find_bounds_input("x ** 2 > 0")
 >>> print(test.get_intervals(["x ** 2 > 0"], test.find_bounds(bounds, expression)))
-['[-INF,0]','[0,INF]']
+['[-INF,0]', '[0,INF]']
 
 >>> bounds, expression = test.find_bounds_input("x ** 2 >= 0")
 >>> print(test.get_intervals(["x ** 2 >= 0"], test.find_bounds(bounds, expression)))
