@@ -62,6 +62,13 @@ class Z3_Worker():
         else:
             return False
     
+    def format_disjunction(self, expression):
+        list = expression.split("or")
+        string = "Or("
+        for item in list:
+            string += item + ","
+        return string[0:len(string) - 1] + ")" 
+    
     #returns a tuple of ([free vars], [bound vars])
     def separate_vars(self, expressions):
         vars = set()
@@ -490,5 +497,6 @@ if __name__ == '__main__':
     # print("Free:",test.separate_expressions(testExprs)[0],"Bound:",test.separate_expressions(testExprs)[1])
     # print(test.for_all('x**2>4,x**2<16'))
     bounds, expression = test.find_bounds_input("x ** 2 <= 0")
-    print(test.get_intervals(["x ** 2 <= 0"], test.find_bounds(bounds, expression)))
-    print(test.simplify_intervals(['(-INF,3]', '[10.1,12']))
+    #print(test.get_intervals(["x ** 2 <= 0"], test.find_bounds(bounds, expression)))
+    print(test.simplify_intervals(['(-INF,sqrt(2) + 1]', '[sqrt(2) + 1,12']))
+    print(test.format_disjunction("x > 2 or x< -2"))
