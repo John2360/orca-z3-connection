@@ -228,6 +228,13 @@ class Z3_Worker():
 
             return simplify(eval(expression))
 
+    def convert_or_to_z3_or(self, expression):
+        if 'or' in expression.lower():
+            expression = expression.lower().replace(' or ', ',')
+            expression = "Or("+ expression+")"
+        
+        return expression
+
     def for_all(self, code):
         # find each line of code
         code_steps = self.code_to_list(code)
@@ -243,6 +250,7 @@ class Z3_Worker():
 
         # declare new varibles and add statements to solver
         for expression in code_steps:
+            expression = self.convert_or_to_z3_or(expression)
             varibles = self.info_on_expression(expression)
             
             for var in [x for x in varibles if x not in declared_vars]:
@@ -262,7 +270,7 @@ class Z3_Worker():
         for expression in expression_list:
             clean_vars = []
             varibles = self.info_on_expression(expression)
-            expression = eval(expression)
+            # expression = eval(expression)
             for_all_vars = [x for x in varibles if x not in bounding_vars]
             for var in for_all_vars:
                 clean_vars.append(locals()[var])
@@ -513,4 +521,5 @@ if __name__ == '__main__':
     # print(test.for_all("x**2 + y **2 >=0"))
     # print(test.for_all("x**2>0"))
     # print(test.for_all("x + y > 0"))
-    print(test.for_all("x**2 + y**2 > 0"))
+    # print(test.convert_or_to_z3_or(x**2 + y**2 > 0))
+    print(test.for_all("x == y or y == x"))
