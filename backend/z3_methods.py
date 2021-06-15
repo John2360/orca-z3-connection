@@ -472,7 +472,7 @@ class Z3_Worker():
         answer = eval(string)
         return answer
     
-    def simplify_intervals(self, intervals):
+    def simplify_intervals(self,intervals):
         list = []
         for interval in intervals:
             index = interval.index(',')
@@ -481,7 +481,7 @@ class Z3_Worker():
             try:
                 temp.append(self.test_is_int(float(interval[1:index])))
             except:
-                temp.append(self.test_is_int(interval[1:index]))
+                temp.append(interval[1:index])
             
             try:
                 temp.append(self.test_is_int(float(interval[index + 1: len(interval) - 1])))
@@ -490,23 +490,45 @@ class Z3_Worker():
 
             temp.append(interval[len(interval) - 1:])
             list.append(temp)
+        
+        bad = []
+        i = 0
+        while i < len(list):
+            if list[i][1] == "-INF":
+                bad.append(list[i])
+                list.pop(i)
+                i -= 1
+            i += 1 
+        
+        list.sort(key=lambda x: x[1])
+        for interval in bad:
+            list.insert(0, interval)
 
         i = 0
         while i < len(list) - 1:
             current = list[i]
             next = list[i+1]
 
-            if current[-1] == ')' and next[0] == '(':
-                pass
-            else:
-                if current[-2] != next[1]:
-                    pass
-                else:
-                    list[i][-2] = list[i+1][-2]
-                    list[i][-1] = list[i+1][-1]
-                    list.pop(i+1)
-                    i -= 1
+            if current == next or current[-2] == "INF" or (next[-2] != "INF" and current[-2] >= next[-2]):
+                list.pop(i+1)
+                i -= 1
             
+            elif next[1] == "-INF":
+                list.pop(i)
+                i -= 1
+            
+            elif current[-2] > next[1]:
+                list[i][-2] = next[-2]
+                list[i][-1] = next[-1]
+                list.pop(i+1)
+                i -= 1
+            
+            elif current[-2] == next[1] and (current[-1] == ']' or next[0] == '['):
+                list[i][-2] = next[-2]
+                list[i][-1] = next[-1]
+                list.pop(i+1)
+                i -= 1
+
             i += 1
         for j in range(0,len(list)):
             list[j] = list[j][0] + str(list[j][1]) + ','+str(list[j][2]) + list[j][3]
@@ -548,3 +570,4 @@ if __name__ == '__main__':
     # print(test.for_all("x + y > 0"))
     # print(test.convert_or_to_z3_or(x**2 + y**2 > 0))
     print(test.for_all("x == y or y == x"))
+    print(test.simplify_intervals(['[-2,0)','(-INF,-2]','(0,INF)','(-INF,-3]']))
