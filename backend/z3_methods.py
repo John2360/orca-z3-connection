@@ -2,6 +2,7 @@ from z3 import *
 from math import sqrt
 import data_structures as DS
 import re
+from itertools import chain, combinations
 
 from sympy import symbols, Eq, solve
 import string
@@ -520,6 +521,11 @@ class Z3_Worker():
             return int(val)
         else:
             return val
+    
+    def get_bounds_powerset(bounds):
+        output = list(chain.from_iterable(combinations(bounds,r) for r in range (len(bounds) + 1)))
+        output.remove(())
+        return output
 
 if __name__ == '__main__':
     import json
