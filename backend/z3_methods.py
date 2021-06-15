@@ -231,9 +231,12 @@ class Z3_Worker():
     def convert_or_to_z3_or(self, expression):
         if 'or' in expression.lower():
             expression = expression.lower().replace(' or ', ',')
-            expression = "Or("+ expression+")"
+            expression = "["+ expression+"]"
+            status = True
+        else:
+            status = False
         
-        return expression
+        return (status, expression)
 
     def for_all(self, code):
         # find each line of code
@@ -250,7 +253,8 @@ class Z3_Worker():
 
         # declare new varibles and add statements to solver
         for expression in code_steps:
-            # expression = self.convert_or_to_z3_or(expression)
+            old_expression = expression
+            or_statement, expression = self.convert_or_to_z3_or(expression)
             varibles = self.info_on_expression(expression)
             
             for var in [x for x in varibles if x not in declared_vars]:
@@ -270,12 +274,18 @@ class Z3_Worker():
         for expression in expression_list:
             clean_vars = []
             varibles = self.info_on_expression(expression)
-            expression = eval(expression)
+
             for_all_vars = [x for x in varibles if x not in bounding_vars]
             for var in for_all_vars:
                 clean_vars.append(locals()[var])
             
-            exec_expressions.append(ForAll(clean_vars, expression))
+            # print(str(expression))
+            expression = eval(expression)
+
+            if or_statement:
+                exec_expressions.append(ForAll(clean_vars, Or(expression)))
+            else:
+                exec_expressions.append(ForAll(clean_vars, expression))
 
         for bounding_expression in bounding_expressions:
             varibles = self.info_on_expression(bounding_expression)
@@ -288,10 +298,12 @@ class Z3_Worker():
         if res == sat:
             expression_model = s.model()
         else:
+            
+            if len(set(declared_vars)) > 1 or or_statement:
+                return "Counterexample: " + str(self.produce_counterexample(code_steps))
+
             bounds, expression = self.find_bounds_input(code)
             ints = self.find_bounds(bounds, expression)
-            if len(varibles) > 1:
-                return "Counterexample: " + str(self.produce_counterexample(code_steps))
             
             return self.get_intervals(expression_list, ints)
         
@@ -301,14 +313,21 @@ class Z3_Worker():
         s = Solver()
             
         for expression in expressions:
+            or_statement, expression = self.convert_or_to_z3_or(expression)
             varibles = self.info_on_expression(expression)
 
             for var in varibles:
                 exec(var + " = Real('"+var+"')")
 
-            expression = expression.replace('=', '==')
+            if expression.count('=') == 1:
+                expression = expression.replace('=', '==')
+
             f = eval(expression)
-            s.add(Not(f))
+            
+            if or_statement:
+                s.add(Not(Or(f)))
+            else:
+                s.add(Not(f))
         
         s.check()
         return s.model()
