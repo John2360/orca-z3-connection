@@ -250,7 +250,7 @@ class Z3_Worker():
 
         # declare new varibles and add statements to solver
         for expression in code_steps:
-            expression = self.convert_or_to_z3_or(expression)
+            # expression = self.convert_or_to_z3_or(expression)
             varibles = self.info_on_expression(expression)
             
             for var in [x for x in varibles if x not in declared_vars]:
@@ -270,7 +270,7 @@ class Z3_Worker():
         for expression in expression_list:
             clean_vars = []
             varibles = self.info_on_expression(expression)
-            # expression = eval(expression)
+            expression = eval(expression)
             for_all_vars = [x for x in varibles if x not in bounding_vars]
             for var in for_all_vars:
                 clean_vars.append(locals()[var])
