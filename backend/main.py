@@ -28,7 +28,7 @@ def request_handler_checker():
         # if valid proof type executes proof checker
         json_data = {}
         try:
-            validity, model = valid_operations[type](data['code'])
+            validity, model, counter_example = valid_operations[type](data['code'])
             json_data['success'] = True
             json_data['valid'] = validity
             json_data['model'] = str(model)
@@ -36,11 +36,13 @@ def request_handler_checker():
             json_data['success'] = False
             json_data['valid'] = None
             json_data['model'] = None
+            json_data['counter_example'] = None
     else:
         json_data = {}
         json_data['success'] = False
         json_data['valid'] = None
         json_data['model'] = None
+        json_data['counter_example'] = None
     
     return json.dumps(json_data)
 

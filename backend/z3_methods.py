@@ -121,7 +121,13 @@ class Z3_Worker():
             f = eval(expression)
             s.add(f)
 
-        return (s.check() == sat, None)
+        result = s.check()
+        if result == sat:
+            counter_example = None
+        else:
+            counter_example = self.produce_counterexample(expressions)
+
+        return (result == sat, None, counter_example)
 
     # setup the proof
     def algebraic(self, code):
@@ -165,12 +171,15 @@ class Z3_Worker():
             f = eval(expression)
             s.add(f)
 
-        if s.check() == sat:
+        result = s.check()
+        if result == sat:
             expression_model = s.model()
+            counter_example = None
         else:
             expression_model = None
+            counter_example = self.produce_counterexample(expression_list)
         
-        return (s.check() == sat, expression_model)
+        return (result == sat, expression_model, counter_example)
 
     def inequality(self, code):
         return self.inequality_solver(code)
@@ -282,7 +291,7 @@ class Z3_Worker():
                 clean_vars.append(locals()[var])
             
             # print(str(expression))
-            expression = eval(expression)
+            expression = eval(str(expression))
 
             if or_statement:
                 exec_expressions.append(ForAll(clean_vars, Or(expression)))
@@ -301,7 +310,7 @@ class Z3_Worker():
             expression_model = s.model()
         else:
             if len(set(declared_vars)) > 1 or or_statement:
-                return "Counterexample: " + str(self.produce_counterexample(code_steps))
+                return (res == sat, None, self.produce_counterexample(code_steps))
             
             if or_statement:
                 differnt_combos = {}
@@ -325,15 +334,15 @@ class Z3_Worker():
                     ints = self.find_bounds(bounds, expression)
                     interval_list.append(self.get_intervals(expression_list, ints))
 
-                return self.simplify_intervals(interval_list)
+                return (res == sat, self.simplify_intervals(interval_list), None)
 
             else:
                 bounds, expression = self.find_bounds_input(code)
                 ints = self.find_bounds(bounds, expression)
 
-            return self.get_intervals(expression_list, ints)
+            return (res == sat, self.get_intervals(expression_list, ints), None)
         
-        return (res == sat, expression_model)
+        return (res == sat, expression_model, None)
     
     def produce_counterexample(self, expressions):
         s = Solver()
@@ -594,5 +603,5 @@ if __name__ == '__main__':
     # print(test.for_all("x**2>0"))
     # print(test.for_all("x + y > 0"))
     # print(test.convert_or_to_z3_or(x**2 + y**2 > 0))
-    print(test.for_all("x == y or y == x"))
-    print(test.simplify_intervals(['[-2,0)','(-INF,-2]','(0,INF)','(-INF,-3]']))
+    print(test.for_all("sqrt(2) + x"))
+    # print(test.simplify_intervals(['[-2,0)','(-INF,-2]','(0,INF)','(-INF,-3]']))
