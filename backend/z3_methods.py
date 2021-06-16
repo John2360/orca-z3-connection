@@ -7,6 +7,7 @@ from itertools import chain, combinations
 from sympy import symbols, Eq, solve
 import string
 from math import sqrt
+import copy
 
 class Z3_Worker():
     def info_on_expression(self, expression):
@@ -299,13 +300,37 @@ class Z3_Worker():
         if res == sat:
             expression_model = s.model()
         else:
-            
             if len(set(declared_vars)) > 1 or or_statement:
                 return "Counterexample: " + str(self.produce_counterexample(code_steps))
-
-            bounds, expression = self.find_bounds_input(code)
-            ints = self.find_bounds(bounds, expression)
             
+            if or_statement:
+                differnt_combos = {}
+                for index, expression in enumerate(code_steps):
+                    or_statement, expression_small = self.convert_or_to_z3_or(expression)
+                    if or_statement:
+                        split_expression = expression_small.split(',')
+                        modified_one = copy.deepcopy(code_steps)
+                        modified_one[index] = split_expression[0].replace('[', '').rstrip()
+                        differnt_combos[len(differnt_combos)+1] = modified_one
+                        
+                        modified_two = copy.deepcopy(code_steps)
+                        modified_two[index] = split_expression[1].replace(']','').rstrip()
+                        differnt_combos[len(differnt_combos)+1] = modified_two
+
+                interval_list = []
+
+                for combo in differnt_combos:
+                    new_code_list = ",".join(differnt_combos[combo])
+                    bounds, expression = self.find_bounds_input(new_code_list)
+                    ints = self.find_bounds(bounds, expression)
+                    interval_list.append(self.get_intervals(expression_list, ints))
+
+                return self.simplify_intervals(interval_list)
+
+            else:
+                bounds, expression = self.find_bounds_input(code)
+                ints = self.find_bounds(bounds, expression)
+
             return self.get_intervals(expression_list, ints)
         
         return (res == sat, expression_model)
