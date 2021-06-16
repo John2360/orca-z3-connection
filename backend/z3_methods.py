@@ -1,4 +1,5 @@
 from z3 import *
+import re
 
 class Z3_Worker():
 
@@ -81,5 +82,40 @@ class Z3_Worker():
 
     #takes statements and negates them
     #returns counterexample if it exists, otherwise sat
-    def get_counterexample(self):
-        pass
+    def get_counterexample(self, expressions, bounds=[]):
+        vars = set()
+        for expression in expressions:
+            for var in self.info_on_expression(expression):
+                vars.add(var)
+
+        for bound in bounds:
+            for var in self.info_on_expression(bound):
+                vars.add(var)
+        
+        s = Solver()
+
+        for var in vars:
+            executable = var + "=Real('" + var + "')"
+            exec(executable)
+        
+        exprInput = "Not("
+        for expression in expressions:
+            exprInput += expression + ','
+        
+        exprInput = exprInput[0:len(exprInput) - 1] + ')'
+
+        s.add(eval(exprInput))
+
+        for bound in bounds:
+            s.add(eval(bound))
+        
+        res = s.check()
+        model = None
+        if res == sat:
+            model = s.model()
+        
+        return {"status":res, "counter":model}
+
+if __name__ == '__main__':
+    test = Z3_Worker()
+    print(test.get_counterexample(["x+y>0"]))
