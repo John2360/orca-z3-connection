@@ -86,17 +86,28 @@ class Z3_Worker():
         vars = set()
         for expression in expressions:
             for var in self.info_on_expression(expression):
-                vars.add(var)
+                if var != "or":
+                    vars.add(var)
 
         for bound in bounds:
             for var in self.info_on_expression(bound):
-                vars.add(var)
+                if var != "or":
+                    vars.add(var)
         
         s = Solver()
 
         for var in vars:
             executable = var + "=Real('" + var + "')"
             exec(executable)
+        
+        for i in range(len(expressions)):
+            if ' or ' in expressions[i]:
+                expressions[i] = 'Or(' + self.convert_or_to_z3_or(expressions[i])[1] + ')'
+        
+        for i in range(len(bounds)):
+            if ' or ' in bounds[i]:
+                bounds[i] = 'Or(' + self.convert_or_to_z3_or(bounds[i])[1] + ')'
+        
         
         exprInput = "Not("
         for expression in expressions:
@@ -119,3 +130,4 @@ class Z3_Worker():
 if __name__ == '__main__':
     test = Z3_Worker()
     print(test.get_counterexample(["x+y>0"]))
+    print(test.get_counterexample(["x**2>16"],["x>4 or x<-4"]))
