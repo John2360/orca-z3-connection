@@ -65,6 +65,7 @@ class Z3_Worker():
                     exec(var + " = Real('"+var+"')")
 
             return simplify(eval(expression))
+
     def convert_or_to_z3_or(self, expression):
             if 'or' in expression.lower():
                 expression = expression.lower().replace(' or ', ',')
@@ -77,8 +78,14 @@ class Z3_Worker():
     #returns sat if property is true for all values within the bounds
     #calls get_counterexample, if counter exists, for all is unsat; return unsat and counter
     #if counter exists, return sat
-    def for_all(self):
-        pass
+    def for_all(self, expressions, bounds=[]):
+        counter_example = self.get_counterexample(expressions, bounds)
+
+        if counter_example['status'] == sat:
+            return counter_example
+
+        elif counter_example['status'] == unsat:
+            return {"status": sat}
 
     #takes statements and negates them
     #returns counterexample if it exists, otherwise sat
