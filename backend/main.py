@@ -19,7 +19,7 @@ def blank():
 @app.route('/checker', methods=['POST'])
 def request_handler_checker():
     data = json.loads(request.data)
-    expression = data['expression']
+    expression = data['expressions']
     bounds = data['bounds']
     results = z3.for_all(expression, bounds)
 
