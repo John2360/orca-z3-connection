@@ -82,7 +82,7 @@ class Z3_Worker():
         counter_example = self.get_counterexample(expressions, bounds)
 
         if counter_example['status'] == sat:
-            return counter_example
+            return {'status':unsat, 'counter': counter_example['counter']}
 
         elif counter_example['status'] == unsat:
             return {"status": sat}
@@ -136,5 +136,5 @@ class Z3_Worker():
 
 if __name__ == '__main__':
     test = Z3_Worker()
-    print(test.get_counterexample(["x+y>0"]))
-    print(test.get_counterexample(["x**2>16"],["x>4 or x<-4"]))
+    print(test.for_all(["x**2>16"],["x>4 or x<-4"]))
+    print(test.for_all(["x+y>0"]))
