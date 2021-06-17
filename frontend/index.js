@@ -10,7 +10,7 @@ $(document).ready(() =>
         $.ajax({
             type : 'POST',
             contentType: "application/json",
-            url : 'http://blum.cs.haverford.edu:8080/',
+            url : 'http://blum.cs.haverford.edu:8080/checker',
             data : getContent(),
             success : (data)  => 
             {
