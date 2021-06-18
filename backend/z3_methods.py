@@ -78,8 +78,13 @@ class Z3_Worker():
     #returns sat if property is true for all values within the bounds
     #calls get_counterexample, if counter exists, for all is unsat; return unsat and counter
     #if counter exists, return sat
-    def for_all(self, expressions, bounds=[]):
-        counter_example = self.get_counterexample(expressions, bounds)
+    def for_all(self, expressions, bounds=""):
+        expressionList = expressions.split(',')
+        if bounds == "":
+            boundList = []
+        else:
+            boundList = bounds.split(',')
+        counter_example = self.get_counterexample(expressionList, boundList)
 
         if counter_example['status'] == sat:
             return {'status':unsat, 'counter': counter_example['counter']}
@@ -136,5 +141,5 @@ class Z3_Worker():
 
 if __name__ == '__main__':
     test = Z3_Worker()
-    print(test.for_all(["x**2>16"],["x>4 or x<-4"]))
-    print(test.for_all(["x+y>0"]))
+    print(test.for_all("x**2>16","x>4 or x<-4"))
+    print(test.for_all("x+y>0"))
