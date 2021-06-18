@@ -87,10 +87,10 @@ class Z3_Worker():
         counter_example = self.get_counterexample(expressionList, boundList)
 
         if counter_example['status'] == sat:
-            return {'status':unsat, 'counter': counter_example['counter']}
+            return {'status':"unsat", 'counter': str(counter_example['counter'])}
 
         elif counter_example['status'] == unsat:
-            return {"status": sat}
+            return {"status": "sat"}
 
     #takes statements and negates them
     #returns counterexample if it exists, otherwise sat
