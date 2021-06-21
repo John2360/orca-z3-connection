@@ -86,30 +86,38 @@ class Z3_Worker():
             boundList = bounds.split(',')
         counter_example = self.get_counterexample(expressionList, boundList)
 
-        if counter_example['status'] == sat:
+        if counter_example == "BAD_BOUNDS":
+            return {'status':'unsat', 'counter':'BAD_BOUNDS'}
+        elif counter_example['status'] == sat:
             return {'status':"unsat", 'counter': str(counter_example['counter'])}
 
         elif counter_example['status'] == unsat:
             return {"status": "sat"}
-
-    #takes statements and negates them
-    #returns counterexample if it exists, otherwise sat
-    def get_counterexample(self, expressions, bounds=[]):
+    
+    def get_vars(self, expressions):
         vars = set()
         for expression in expressions:
             for var in self.info_on_expression(expression):
                 if var != "or":
                     vars.add(var)
+        
+        return vars
+    
+    def init_real(self, var):
+        return var + "=Real('" + var + "')"
 
-        for bound in bounds:
-            for var in self.info_on_expression(bound):
-                if var != "or":
-                    vars.add(var)
+
+    #takes statements and negates them
+    #returns counterexample if it exists, otherwise sat
+    def get_counterexample(self, expressions, bounds=[]):
+        vars = self.get_vars(expressions)
+        if len(bounds) > 0:
+            vars.update(self.get_vars(bounds))
         
         s = Solver()
 
         for var in vars:
-            executable = var + "=Real('" + var + "')"
+            executable = self.init_real(var)
             exec(executable)
         
         for i in range(len(expressions)):
@@ -120,7 +128,12 @@ class Z3_Worker():
             if ' or ' in bounds[i]:
                 bounds[i] = 'Or(' + self.convert_or_to_z3_or(bounds[i])[1] + ')'
         
+        for bound in bounds:
+            s.add(eval(bound))
         
+        if s.check() == unsat:
+            return "BAD_BOUNDS"
+
         exprInput = "Not("
         for expression in expressions:
             exprInput += expression + ','
@@ -129,8 +142,6 @@ class Z3_Worker():
 
         s.add(eval(exprInput))
 
-        for bound in bounds:
-            s.add(eval(bound))
         
         res = s.check()
         model = None
@@ -143,3 +154,4 @@ if __name__ == '__main__':
     test = Z3_Worker()
     print(test.for_all("x**2>16","x>4 or x<-4"))
     print(test.for_all("x+y>0"))
+    print(test.for_all("x**2>=0","x>2,x<2"))
