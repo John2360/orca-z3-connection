@@ -21,6 +21,7 @@ def request_handler_checker():
     data = json.loads(request.data)
     expression = data['expressions']
     bounds = data['bounds']
-    results = z3.for_all(expression, bounds)
+    types = data['types']
+    results = z3.for_all(expression, bounds, types)
 
     return json.dumps(results)

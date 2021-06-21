@@ -103,11 +103,10 @@ class Z3_Worker():
         
         return vars
     
-    def init_real(self, var):
-        return var + "=Real('" + var + "')"
+    def init_var(self, var, type):
+        return var + "=" + type +"('" + var + "')"
     
-    def init_int(self, var):
-        return var + "=Int('" + var + "')"
+    
 
 
     #takes statements and negates them
@@ -118,13 +117,18 @@ class Z3_Worker():
             vars.update(self.get_vars(bounds))
         
         s = Solver()
-
+        declared = []
+        for type in types:
+            for var in vars:
+                if var in types[type]:
+                    declared.append(var)
+                    executable = self.init_var(var, type)
+                    exec(executable)
+        
         for var in vars:
-            if var not in types or types[var] == 'real':
-                executable = self.init_real(var)
-            elif types[var] == 'int':
-                executable = self.init_int(var)
-            exec(executable)
+            if var not in declared:
+                executable = self.init_var(var, "Real")
+                exec(executable)
         
         for i in range(len(expressions)):
             if ' or ' in expressions[i]:
@@ -161,3 +165,4 @@ if __name__ == '__main__':
     print(test.for_all("x**2>16","x>4 or x<-4"))
     print(test.for_all("x+y>0"))
     print(test.for_all("x**2>=0","x>2,x<2"))
+    print(test.for_all("y>1","y>0,y!=1", {"Int":["y"]}))
