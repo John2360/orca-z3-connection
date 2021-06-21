@@ -78,13 +78,13 @@ class Z3_Worker():
     #returns sat if property is true for all values within the bounds
     #calls get_counterexample, if counter exists, for all is unsat; return unsat and counter
     #if counter exists, return sat
-    def for_all(self, expressions, bounds=""):
+    def for_all(self, expressions, bounds="", types ={}):
         expressionList = expressions.split(',')
         if bounds == "":
             boundList = []
         else:
             boundList = bounds.split(',')
-        counter_example = self.get_counterexample(expressionList, boundList)
+        counter_example = self.get_counterexample(expressionList, boundList,types)
 
         if counter_example == "BAD_BOUNDS":
             return {'status':'unsat', 'counter':'BAD_BOUNDS'}
@@ -105,11 +105,14 @@ class Z3_Worker():
     
     def init_real(self, var):
         return var + "=Real('" + var + "')"
+    
+    def init_int(self, var):
+        return var + "=Int('" + var + "')"
 
 
     #takes statements and negates them
     #returns counterexample if it exists, otherwise sat
-    def get_counterexample(self, expressions, bounds=[]):
+    def get_counterexample(self, expressions, bounds=[], types={}):
         vars = self.get_vars(expressions)
         if len(bounds) > 0:
             vars.update(self.get_vars(bounds))
@@ -117,7 +120,10 @@ class Z3_Worker():
         s = Solver()
 
         for var in vars:
-            executable = self.init_real(var)
+            if var not in types or types[var] == 'real':
+                executable = self.init_real(var)
+            elif types[var] == 'int':
+                executable = self.init_int(var)
             exec(executable)
         
         for i in range(len(expressions)):
