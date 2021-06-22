@@ -70,7 +70,7 @@ class Z3_Worker():
             for var in [x for x in varibles if x not in declared_vars]:
                     exec(var + " = Real('"+var+"')")
 
-            return simplify(eval(expression))
+            return {'simplified': simplify(eval(expression))}
 
     def convert_or_to_z3_or(self, expression):
             if 'or' in expression.lower():
