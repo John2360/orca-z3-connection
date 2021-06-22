@@ -656,3 +656,26 @@ if __name__ == '__main__':
     # print(test.convert_or_to_z3_or(x**2 + y**2 > 0))
     print(test.for_all("x == y or y == x"))
     print(test.simplify_intervals(['[-2,0)','(-INF,-2]','(0,INF)','(-INF,-3]']))
+
+
+    # known axioms
+    known_axioms = ["x * var1 ** (var2 - 1) == var1 ** var2"]
+    list_of_vars = list(vars)
+
+    for axiom in known_axioms:
+        expression_vars = self.get_vars(axiom)
+
+        print(expression_vars)
+        if len(expression_vars) <= len(vars):
+
+            for j in range(len(vars)):
+                for index, expression_var in enumerate(expression_vars):
+                    axiom = axiom.replace(expression_var, list_of_vars[index])
+
+                print(axiom)
+                
+                # shuffle list
+                list_of_vars.append(list_of_vars.pop(0))
+
+
+    # s.add()

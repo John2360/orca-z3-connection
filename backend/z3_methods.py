@@ -75,9 +75,10 @@ class Z3_Worker():
                 status = False
             
             return (status, expression)
-    #returns sat if property is true for all values within the bounds
-    #calls get_counterexample, if counter exists, for all is unsat; return unsat and counter
-    #if counter exists, return sat
+
+    # returns sat if property is true for all values within the bounds
+    # calls get_counterexample, if counter exists, for all is unsat; return unsat and counter
+    # if counter exists, return sat
     def for_all(self, expressions, bounds="", types=""):
         expressionList = expressions.split(',')
         typeDict = self.generate_type_dict(types)
@@ -125,7 +126,7 @@ class Z3_Worker():
         return types
 
 
-    #Not(p,q,r) == Not(p) or Not(q) or Not(r)
+    # Not(p,q,r) == Not(p) or Not(q) or Not(r)
     def de_morgans(self, expressions):
         str = "Or("
         for expression in expressions:
@@ -133,10 +134,11 @@ class Z3_Worker():
         
         return str[0:len(str) - 1] + ")"
         
-    #takes statements and negates them
-    #returns counterexample if it exists, otherwise sat
+    # takes statements and negates them
+    # returns counterexample if it exists, otherwise sat
     def get_counterexample(self, expressions, bounds=[], types={}):
         vars = self.get_vars(expressions)
+
         if len(bounds) > 0:
             vars.update(self.get_vars(bounds))
         
@@ -164,7 +166,7 @@ class Z3_Worker():
         
         for bound in bounds:
             s.add(eval(bound))
-        
+
         if s.check() == unsat:
             return "BAD_BOUNDS"
 
