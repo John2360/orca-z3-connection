@@ -125,7 +125,14 @@ class Z3_Worker():
         return types
 
 
-
+    #Not(p,q,r) == Not(p) or Not(q) or Not(r)
+    def de_morgans(self, expressions):
+        str = "Or("
+        for expression in expressions:
+            str += "Not("+expression +"),"
+        
+        return str[0:len(str) - 1] + ")"
+        
     #takes statements and negates them
     #returns counterexample if it exists, otherwise sat
     def get_counterexample(self, expressions, bounds=[], types={}):
@@ -161,13 +168,7 @@ class Z3_Worker():
         if s.check() == unsat:
             return "BAD_BOUNDS"
 
-        exprInput = "Not("
-        for expression in expressions:
-            exprInput += expression + ','
-        
-        exprInput = exprInput[0:len(exprInput) - 1] + ')'
-
-        s.add(eval(exprInput))
+        s.add(eval(self.de_morgans(expressions)))
 
         
         res = s.check()
@@ -179,7 +180,8 @@ class Z3_Worker():
 
 if __name__ == '__main__':
     test = Z3_Worker()
+    print(test.de_morgans(["x**2>2","x**2<-2"]))
     print(test.for_all("x**2>16","x>4 or x<-4"))
     print(test.for_all("x+y>0"))
     print(test.for_all("x**2>=0","x>2,x<2"))
-    print(test.for_all('y>1','y>0,y!=1','Int(y)'))
+    print(test.for_all('y>1,y-1>0,y>y-1','y>0,y!=1','Int(y)'))
