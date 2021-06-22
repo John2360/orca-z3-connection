@@ -78,13 +78,14 @@ class Z3_Worker():
     #returns sat if property is true for all values within the bounds
     #calls get_counterexample, if counter exists, for all is unsat; return unsat and counter
     #if counter exists, return sat
-    def for_all(self, expressions, bounds="", types ={}):
+    def for_all(self, expressions, bounds="", types=""):
         expressionList = expressions.split(',')
+        typeDict = self.generate_type_dict(types)
         if bounds == "":
             boundList = []
         else:
             boundList = bounds.split(',')
-        counter_example = self.get_counterexample(expressionList, boundList,types)
+        counter_example = self.get_counterexample(expressionList, boundList,typeDict)
 
         if counter_example == "BAD_BOUNDS":
             return {'status':'unsat', 'counter':'BAD_BOUNDS'}
@@ -106,7 +107,23 @@ class Z3_Worker():
     def init_var(self, var, type):
         return var + "=" + type +"('" + var + "')"
     
-    
+    def generate_type_dict(self, assignments):
+        types = {}
+        temp = assignments.replace(' ', '')
+        list = assignments.split(',')
+        for assignment in list:
+            if '(' in assignment and ')' in assignment:
+                i = assignment.index('(')
+                j = assignment.index(')')
+                type = assignment[0:i]
+                var = assignment[i+1:j]
+                if type in types:
+                    types[type].append(var)
+                else:
+                    types[type] = [var]
+        
+        return types
+
 
 
     #takes statements and negates them
@@ -165,4 +182,4 @@ if __name__ == '__main__':
     print(test.for_all("x**2>16","x>4 or x<-4"))
     print(test.for_all("x+y>0"))
     print(test.for_all("x**2>=0","x>2,x<2"))
-    print(test.for_all("y>1","y>0,y!=1", {"Int":["y"]}))
+    print(test.for_all('y>1','y>0,y!=1','Int(y)'))
