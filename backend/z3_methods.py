@@ -10,8 +10,14 @@ class Z3_Worker():
         varibles = set(varibles)
 
         return varibles
+
+    def char_in_str(self, input, list):
+        for char in list:
+            if char in input:
+                return char
+        return False
     
-    def simplify_tool(self, expression):
+    def simplify_tool(self, expression, types=''):
         expression_list = []
         modifier = self.char_in_str(expression, ['>', '<', '='])
         final_modifier = ''

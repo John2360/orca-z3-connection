@@ -48,6 +48,11 @@ def request_handler_simplify():
     else:
         return json.dumps({"error": "expression field empty"})
 
+    if 'types' in data:
+        types = data['types']
+    else:
+        types = ""
+
     results = z3.simplify_tool(expression)
-    
+
     return json.dumps(results)
