@@ -178,6 +178,17 @@ class Z3_Worker():
         
         return {"status":res, "counter":model}
 
+    def check_simplify_steps(self, steps):
+        s = Solver()
+        vars = self.get_vars(steps)
+        for var in vars:
+            exec(self.init_var(var, "Real"))
+        for i in range(len(steps) - 1):
+            s.add(eval(steps[i]) == eval(steps[i+1]))
+        
+        return s.check()
+
+
 if __name__ == '__main__':
     test = Z3_Worker()
     print(test.de_morgans(["x**2>2","x**2<-2"]))
@@ -185,3 +196,4 @@ if __name__ == '__main__':
     print(test.for_all("x+y>0"))
     print(test.for_all("x**2>=0","x>2,x<2"))
     print(test.for_all('y>1,y-1>0,y>y-1','y>0,y!=1','Int(y)'))
+    print(test.check_simplify_steps(["2*x + 3 - 2","2*x+1"]))
