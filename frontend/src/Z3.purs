@@ -13,14 +13,14 @@ import Effect.Aff (launchAff_)
 --simplify given expression exp
 simplifyExp :: String->String --Strings should be Exp
 simplifyExp expression = returned
-    where returned = sendRequest "http://blum.cs.haverford.edu:8080/simplify" {}
+    where returned = sendRequest "http://blum.cs.haverford.edu:8080/simplify" "{'test':'hello'}"
 
 --see if equation or inequality is correct given exp and assumptions
 checkExp :: String->Boolean --note that String parameter should be Exp
 checkExp expression = returned
-    where returned = sendRequest "http://blum.cs.haverford.edu:8080/checker" {}
+    where returned = sendRequest "http://blum.cs.haverford.edu:8080/checker" "{'test':'hello'}"
 
-sendRequest :: String Json -> Json --probably not the right types
+sendRequest :: String String -> Json --probably not the right types
 sendRequest url body = launchAff_ do 
     result2 <- AX.post ResponseFormat.json url (Just (RequestBody.json (fromString body)))
     case result2 of
