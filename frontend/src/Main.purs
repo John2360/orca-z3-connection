@@ -7,10 +7,11 @@ import Effect (Effect)
 import Effect.Console (log)
 
 myValue =
-          { expressions: "x+y>=2",
-            bounds: "x>0",
-            types: ""
-          } :: MyExpression
+    { expressions: "x+y>=2",
+      bounds: "x>0",
+      types: ""
+    } :: MyCheck
+
 sample_request = {url: "http://blum.cs.haverford.edu:8080/checker", body: myValue}
 
 

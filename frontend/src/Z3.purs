@@ -18,19 +18,28 @@ import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
 import Affjax.RequestBody as RequestBody
 import Simple.JSON as JSON
 
-type MyExpression =
+type MyCheck =
   {   expressions :: String
     , bounds :: String
     , types :: String
   }
 
+type MySimplify =
+  {   expression :: String
+  }
+
 type API_Requests = {
     url :: String,
-    body :: MyExpression
+    body :: MyCheck
+}
+
+type API_Requests2 = {
+    url :: String,
+    body :: MySimplify
 }
 
 --sample = {url:"http://blum.cs.haverford.edu:8080/checker", body:"{'expressions':'x>2', 'bounds',''}"}
-sendRequest :: API_Requests -> Effect Unit --probably not the right types
+sendRequest :: API_Requests  -> Effect Unit --probably not the right types
 sendRequest info = launchAff_ do
     
     result <- AX.request (AX.defaultRequest { url = info.url, method = Left POST, responseFormat = ResponseFormat.json, headers = [RequestHeader "Content-Type" "application/json"], content = (Just(RequestBody.string  (JSON.writeJSON info.body)))})
