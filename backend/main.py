@@ -18,9 +18,8 @@ def blank():
 
 @app.route('/checker', methods=['POST'])
 def request_handler_checker():
-    print(request.data)
     data = json.loads(request.data)
-    print(type(data))
+    print(data)
 
     if 'expressions' in data:
         expression = data['expressions']
@@ -44,6 +43,7 @@ def request_handler_checker():
 @app.route('/simplify', methods=['POST'])
 def request_handler_simplify():
     data = json.loads(request.data)
+    print(data)
 
     if 'expression' in data:
         expression = data['expression']
