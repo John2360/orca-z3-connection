@@ -22,6 +22,7 @@ def request_handler_checker():
     data = json.loads(request.data)
     print(data)
     print(type(data))
+    print(data['expressions'])
 
     if 'expressions' in data:
         expression = data['expressions']
