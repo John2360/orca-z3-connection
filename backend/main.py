@@ -21,7 +21,7 @@ def request_handler_checker():
     print(request.data)
     data = json.loads(request.data)
     print(data)
-    print(type)
+    print(type(data))
 
     if 'expressions' in data:
         expression = data['expressions']
@@ -47,7 +47,7 @@ def request_handler_simplify():
     print(request.data)
     data = json.loads(request.data)
     print(data)
-    print(type)
+    print(type(data))
 
     if 'expression' in data:
         expression = data['expression']
