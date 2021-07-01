@@ -17,4 +17,5 @@ sample_request = {url: "http://blum.cs.haverford.edu:8080/checker", body: myValu
 
 main :: Effect Unit
 main = do
-  sendRequest sample_request
+  --requestCheck "x**2>4" "x>2" ""
+  requestSimplify "2*(x/2) + 1 + (y-1)==x + y"
