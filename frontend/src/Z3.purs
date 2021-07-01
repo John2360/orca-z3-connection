@@ -1,21 +1,21 @@
 module Z3 where
 
-import Prelude
-import Data.Maybe
+import Affjax.RequestHeader
 import Data.Map
-import Data.Either (Either(..))
+import Data.Maybe
+import Prelude
+
 import Affjax as AX
+import Affjax.RequestBody as RequestBody
 import Affjax.ResponseFormat as ResponseFormat
 import Data.Argonaut.Core (stringify, fromString, Json)
-import Effect.Class.Console (log)
-
+import Data.Either (Either(..))
 import Data.HTTP.Method (Method(..))
-import Affjax.RequestHeader
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
-
-import Affjax.RequestBody as RequestBody
+import Effect.Class.Console (log)
+import Prim.Boolean (False, True)
 import Simple.JSON as JSON
 
 type MyCheck =
@@ -27,7 +27,7 @@ type MyCheck =
 type MySimplify =
   {   expression :: String
   }
-  
+
 requestCheck :: String->String->String->Effect Unit
 requestCheck expressions bounds types = launchAff_ do   
     let myCheck = {expressions : expressions, bounds:bounds,types:types} :: MyCheck
@@ -47,3 +47,8 @@ requestSimplify expression = launchAff_ do
     case result of
         Left err -> log $ "POST " <> url <> " response failed to decode: " <> AX.printError err
         Right response -> log $ "POST " <> url <> " response: " <> stringify response.body
+
+statusToBool :: String -> Boolean
+statusToBool status
+  |status == "sat" = true
+  |otherwise = false
