@@ -19,6 +19,7 @@ def blank():
 @app.route('/checker', methods=['POST'])
 def request_handler_checker():
     data = json.loads(request.data)
+    print(type(data))
 
     if 'expressions' in data:
         expression = data['expressions']
