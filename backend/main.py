@@ -4,6 +4,8 @@ from celery import Celery
 import z3_methods
 import json
 
+import time
+
 # flask setups
 app = Flask(__name__)
 cors = CORS(app)
@@ -44,6 +46,7 @@ def request_handler_checker():
     else:
         types = ""
     
+    time.sleep(.25)
     results = async_for_all(expression, bounds, types)
 
     return json.dumps(results)
@@ -66,6 +69,7 @@ def request_handler_simplify():
     else:
         types = ""
 
+    time.sleep(.2)
     results = async_simplify_tool(expression)
 
     return json.dumps(str(results))
