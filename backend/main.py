@@ -55,4 +55,4 @@ def request_handler_simplify():
 
     results = z3.simplify_tool(expression)
 
-    return json.dumps(results)
+    return json.dumps(str(results))
