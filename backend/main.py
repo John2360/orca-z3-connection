@@ -1,12 +1,18 @@
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
+from celery import Celery
 import z3_methods
 import json
 
 # flask setups
 app = Flask(__name__)
 cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+app.config['CORS_HEADERS'] = 'Content-Type'     # Your celery configurations in a celeryconfig.py
+
+app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 z3 = z3_methods.Z3_Worker()
 
@@ -15,6 +21,9 @@ z3 = z3_methods.Z3_Worker()
 def blank():
     return 'Project Orca Z3 API'
 
+@celery.task
+def async_for_all(expression, bounds, types):
+    return z3.for_all(expression, bounds, types)
 
 @app.route('/checker', methods=['POST'])
 def request_handler_checker():
@@ -35,9 +44,13 @@ def request_handler_checker():
     else:
         types = ""
     
-    results = z3.for_all(expression, bounds, types)
+    results = async_for_all(expression, bounds, types)
 
     return json.dumps(results)
+
+@celery.task
+def async_simplify_tool(expression):
+    return z3.simplify_tool(expression)
 
 @app.route('/simplify', methods=['POST'])
 def request_handler_simplify():
@@ -53,6 +66,6 @@ def request_handler_simplify():
     else:
         types = ""
 
-    results = z3.simplify_tool(expression)
+    results = async_simplify_tool(expression)
 
     return json.dumps(str(results))
